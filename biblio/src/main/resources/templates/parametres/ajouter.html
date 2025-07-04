@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ajouter un Paramètre - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="bi bi-gear text-info"></i> Ajouter un Paramètre
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Messages d'erreur -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span th:text="${error}">Erreur</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <form th:action="@{/parametres/ajouter}" th:object="${parametre}" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="bi bi-person-badge"></i> Type d'Adhérent
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="typeAdherent" class="form-label">Type d'adhérent *</label>
+                                        <select class="form-select" id="typeAdherent" th:field="*{typeAdherent}" required>
+                                            <option value="">Sélectionner un type</option>
+                                            <option value="etudiant">Étudiant</option>
+                                            <option value="enseignant">Enseignant</option>
+                                            <option value="personnel">Personnel</option>
+                                            <option value="externe">Externe</option>
+                                        </select>
+                                        <div class="form-text">Type d'adhérent pour lequel définir les paramètres</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dureePret" class="form-label">Durée de prêt (jours) *</label>
+                                        <input type="number" class="form-control" id="dureePret" th:field="*{dureePret}" min="1" max="365" required>
+                                        <div class="form-text">Nombre de jours autorisés pour un prêt</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="quotaMax" class="form-label">Quota maximum *</label>
+                                        <input type="number" class="form-control" id="quotaMax" th:field="*{quotaMax}" min="1" max="20" required>
+                                        <div class="form-text">Nombre maximum de livres empruntables simultanément</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="bi bi-exclamation-triangle"></i> Restrictions et Pénalités
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="ageMinimum" class="form-label">Âge minimum *</label>
+                                        <input type="number" class="form-control" id="ageMinimum" th:field="*{ageMinimum}" min="0" max="120" required>
+                                        <div class="form-text">Âge minimum requis pour l'inscription</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="penaliteParJour" class="form-label">Pénalité par jour (€) *</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="penaliteParJour" th:field="*{penaliteParJour}" step="0.01" min="0" max="10" required>
+                                            <span class="input-group-text">€</span>
+                                        </div>
+                                        <div class="form-text">Montant de la pénalité par jour de retard</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Conseils de configuration :</strong>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <strong>Étudiants :</strong>
+                                        <ul class="mb-0">
+                                            <li>Durée : 21-30 jours</li>
+                                            <li>Quota : 5-8 livres</li>
+                                            <li>Âge : 16-18 ans</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Enseignants :</strong>
+                                        <ul class="mb-0">
+                                            <li>Durée : 30-60 jours</li>
+                                            <li>Quota : 10-15 livres</li>
+                                            <li>Âge : 18+ ans</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/parametres" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-info">
+                                    <i class="bi bi-check-circle"></i> Enregistrer le paramètre
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Définir des valeurs par défaut selon le type d'adhérent
+        document.getElementById('typeAdherent').addEventListener('change', function() {
+            const type = this.value;
+            const dureePret = document.getElementById('dureePret');
+            const quotaMax = document.getElementById('quotaMax');
+            const ageMinimum = document.getElementById('ageMinimum');
+            const penaliteParJour = document.getElementById('penaliteParJour');
+            
+            // Réinitialiser les valeurs
+            dureePret.value = '';
+            quotaMax.value = '';
+            ageMinimum.value = '';
+            penaliteParJour.value = '';
+            
+            // Définir les valeurs par défaut selon le type
+            switch(type) {
+                case 'etudiant':
+                    dureePret.value = '21';
+                    quotaMax.value = '5';
+                    ageMinimum.value = '16';
+                    penaliteParJour.value = '0.50';
+                    break;
+                case 'enseignant':
+                    dureePret.value = '30';
+                    quotaMax.value = '10';
+                    ageMinimum.value = '18';
+                    penaliteParJour.value = '0.25';
+                    break;
+                case 'personnel':
+                    dureePret.value = '14';
+                    quotaMax.value = '3';
+                    ageMinimum.value = '18';
+                    penaliteParJour.value = '0.50';
+                    break;
+                case 'externe':
+                    dureePret.value = '14';
+                    quotaMax.value = '2';
+                    ageMinimum.value = '18';
+                    penaliteParJour.value = '1.00';
+                    break;
+            }
+        });
+    </script>
+</body>
+</html> 

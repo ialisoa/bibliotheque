@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gestion des Paramètres - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1><i class="bi bi-gear text-info"></i> Gestion des Paramètres</h1>
+                    <a href="/parametres/ajouter" class="btn btn-info">
+                        <i class="bi bi-plus-circle"></i> Nouveau Paramètre
+                    </a>
+                </div>
+
+                <!-- Messages de succès/erreur -->
+                <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:if="${param.success == 'true'}">Paramètre ajouté avec succès !</span>
+                    <span th:if="${param.success == 'modified'}">Paramètre modifié avec succès !</span>
+                    <span th:if="${param.success == 'deleted'}">Paramètre supprimé avec succès !</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:if="${param.error == 'notfound'}">Paramètre non trouvé !</span>
+                    <span th:if="${param.error == 'delete'}">Erreur lors de la suppression !</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Liste des paramètres -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list"></i> Configuration du Système 
+                            <span class="badge bg-info" th:text="${#lists.size(parametres)}">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(parametres)}" class="text-center py-5">
+                            <i class="bi bi-gear text-muted" style="font-size: 3rem;"></i>
+                            <h4 class="text-muted mt-3">Aucun paramètre configuré</h4>
+                            <p class="text-muted">Configurez les paramètres de votre bibliothèque !</p>
+                            <a href="/parametres/ajouter" class="btn btn-info">
+                                <i class="bi bi-plus-circle"></i> Ajouter un paramètre
+                            </a>
+                        </div>
+
+                        <div th:if="${!#lists.isEmpty(parametres)}" class="row">
+                            <div class="col-md-6 col-lg-4 mb-4" th:each="parametre : ${parametres}">
+                                <div class="card h-100 border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-gear"></i> 
+                                            <span th:text="${parametre.typeAdherent}">Type d'adhérent</span>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">Durée prêt:</small>
+                                                <div class="fw-bold" th:text="${parametre.dureePret + ' jours'}">14 jours</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Quota max:</small>
+                                                <div class="fw-bold" th:text="${parametre.quotaMax + ' livres'}">5 livres</div>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">Âge minimum:</small>
+                                                <div class="fw-bold" th:text="${parametre.ageMinimum + ' ans'}">16 ans</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Pénalité/jour:</small>
+                                                <div class="fw-bold text-danger" th:text="${parametre.penaliteParJour + ' €'}">0.50 €</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-light">
+                                        <div class="btn-group w-100" role="group">
+                                            <a th:href="@{/parametres/{id}(id=${parametre.idParametre})}" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               title="Voir les détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a th:href="@{/parametres/{id}/modifier(id=${parametre.idParametre})}" 
+                                               class="btn btn-sm btn-outline-warning" 
+                                               title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    title="Supprimer"
+                                                    th:data-id="${parametre.idParametre}"
+                                                    th:data-type="${parametre.typeAdherent}"
+                                                    onclick="confirmDelete(this.dataset.id, this.dataset.type)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations sur les paramètres -->
+                <div class="card mt-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="bi bi-info-circle"></i> Informations sur les Paramètres
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Types d'adhérents supportés :</h6>
+                                <ul>
+                                    <li><strong>Étudiant :</strong> Durée de prêt étendue, quota élevé</li>
+                                    <li><strong>Enseignant :</strong> Privilèges spéciaux, durée longue</li>
+                                    <li><strong>Personnel :</strong> Conditions standard</li>
+                                    <li><strong>Externe :</strong> Conditions limitées</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Paramètres configurables :</h6>
+                                <ul>
+                                    <li><strong>Durée de prêt :</strong> Nombre de jours autorisés</li>
+                                    <li><strong>Quota maximum :</strong> Nombre de livres simultanés</li>
+                                    <li><strong>Âge minimum :</strong> Âge requis pour l'inscription</li>
+                                    <li><strong>Pénalité par jour :</strong> Montant des retards</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton retour -->
+                <div class="mt-4">
+                    <a href="/accueil" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour au Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer les paramètres pour <strong id="parametreType"></strong> ?</p>
+                    <p class="text-danger"><small>Cette action est irréversible et affectera tous les adhérents de ce type.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(id, type) {
+            document.getElementById('parametreType').textContent = type;
+            document.getElementById('deleteForm').action = '/parametres/' + id + '/supprimer';
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+</body>
+</html> 

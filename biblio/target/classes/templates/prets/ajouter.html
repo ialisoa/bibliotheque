@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nouveau Prêt - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1><i class="bi bi-hand-index text-primary"></i> Nouveau Prêt</h1>
+                    <a href="/prets" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+
+                <!-- Messages d'erreur -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${error}">Erreur</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <form th:action="@{/prets/ajouter}" method="post" th:object="${pret}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="adherent" class="form-label">Adhérent *</label>
+                                    <select class="form-select" id="adherent" th:field="*{adherent}" required>
+                                        <option value="">Sélectionner un adhérent</option>
+                                        <option th:each="adh : ${adherents}" 
+                                                th:value="${adh.idAdherent}" 
+                                                th:text="${adh.nom + ' ' + adh.prenom + ' (' + adh.email + ')'}">
+                                            Nom Prénom (email)
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="exemplaire" class="form-label">Exemplaire *</label>
+                                    <select class="form-select" id="exemplaire" th:field="*{exemplaire}" required>
+                                        <option value="">Sélectionner un exemplaire</option>
+                                        <option th:each="ex : ${exemplaires}" 
+                                                th:value="${ex.idExemplaire}" 
+                                                th:text="${ex.nomExemplaire + ' - ' + ex.livre.titre + ' (' + ex.etat + ')'}"
+                                                th:disabled="${ex.etat != 'disponible'}">
+                                            Nom exemplaire - Titre livre (état)
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="type" class="form-label">Type de prêt *</label>
+                                    <select class="form-select" id="type" th:field="*{type}" required>
+                                        <option value="">Sélectionner un type</option>
+                                        <option value="domicile">Domicile</option>
+                                        <option value="sur_place">Sur place</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="datePret" class="form-label">Date de prêt *</label>
+                                    <input type="date" class="form-control" id="datePret" th:field="*{datePret}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="dateRenduPrevue" class="form-label">Date de retour prévue *</label>
+                                    <input type="date" class="form-control" id="dateRenduPrevue" th:field="*{dateRenduPrevue}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="dureePret" class="form-label">Durée du prêt (jours)</label>
+                                    <select class="form-select" id="dureePret" onchange="updateReturnDate()">
+                                        <option value="7">7 jours</option>
+                                        <option value="14" selected>14 jours</option>
+                                        <option value="21">21 jours</option>
+                                        <option value="30">30 jours</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="statut" class="form-label">Statut</label>
+                                    <select class="form-select" id="statut" th:field="*{statut}">
+                                        <option value="">Sélectionner un statut</option>
+                                        <option th:each="stat : ${statuts}" 
+                                                th:value="${stat.idStatut}" 
+                                                th:text="${stat.nom}">
+                                            Nom statut
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Information :</strong> 
+                                <ul class="mb-0 mt-2">
+                                    <li>La durée de prêt par défaut est de 14 jours</li>
+                                    <li>Seuls les exemplaires disponibles peuvent être empruntés</li>
+                                    <li>La date de retour prévue sera calculée automatiquement</li>
+                                </ul>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="/prets" class="btn btn-secondary">Annuler</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Enregistrer le prêt
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Définir la date de prêt à aujourd'hui par défaut
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const datePret = document.getElementById('datePret');
+            if (datePret && !datePret.value) {
+                datePret.value = today;
+            }
+            
+            // Calculer la date de retour prévue (14 jours par défaut)
+            updateReturnDate();
+        });
+
+        function updateReturnDate() {
+            const datePret = document.getElementById('datePret');
+            const dateRenduPrevue = document.getElementById('dateRenduPrevue');
+            const dureePret = document.getElementById('dureePret');
+            
+            if (datePret.value && dureePret.value) {
+                const datePretObj = new Date(datePret.value);
+                const duree = parseInt(dureePret.value);
+                datePretObj.setDate(datePretObj.getDate() + duree);
+                dateRenduPrevue.value = datePretObj.toISOString().split('T')[0];
+            }
+        }
+
+        // Mettre à jour la date de retour quand la date de prêt change
+        document.getElementById('datePret').addEventListener('change', updateReturnDate);
+        document.getElementById('dureePret').addEventListener('change', updateReturnDate);
+    </script>
+</body>
+</html> 

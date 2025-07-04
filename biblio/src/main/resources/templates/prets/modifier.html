@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un prêt - Bibliothèque</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-edit me-2"></i>
+                            Modifier un prêt
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/prets/{id}/modifier(id=${pret.idPret})}" th:object="${pret}" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="adherent" class="form-label">Adhérent *</label>
+                                        <select class="form-select" id="adherent" name="adherentId" required>
+                                            <option value="">Sélectionner un adhérent...</option>
+                                            <option th:each="adherent : ${adherents}" 
+                                                    th:value="${adherent.idAdherent}" 
+                                                    th:text="${adherent.nom + ' ' + adherent.prenom}"
+                                                    th:selected="${pret.adherent != null and pret.adherent.idAdherent == adherent.idAdherent}">Adhérent</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('adherent')}" th:errors="*{adherent}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="exemplaire" class="form-label">Exemplaire *</label>
+                                        <select class="form-select" id="exemplaire" name="exemplaireId" required>
+                                            <option value="">Sélectionner un exemplaire...</option>
+                                            <option th:each="exemplaire : ${exemplaires}" 
+                                                    th:value="${exemplaire.idExemplaire}" 
+                                                    th:text="${exemplaire.livre.titre + ' - ' + exemplaire.nomExemplaire}"
+                                                    th:selected="${pret.exemplaire != null and pret.exemplaire.idExemplaire == exemplaire.idExemplaire}">Exemplaire</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('exemplaire')}" th:errors="*{exemplaire}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="datePret" class="form-label">Date de prêt *</label>
+                                        <input type="date" class="form-control" id="datePret" th:field="*{datePret}" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('datePret')}" th:errors="*{datePret}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="dateRenduPrevue" class="form-label">Date de retour prévue *</label>
+                                        <input type="date" class="form-control" id="dateRenduPrevue" th:field="*{dateRenduPrevue}" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dateRenduPrevue')}" th:errors="*{dateRenduPrevue}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="dateRenduReelle" class="form-label">Date de retour réelle</label>
+                                        <input type="date" class="form-control" id="dateRenduReelle" th:field="*{dateRenduReelle}">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dateRenduReelle')}" th:errors="*{dateRenduReelle}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="statut" class="form-label">Statut</label>
+                                        <select class="form-select" id="statut" name="statutId">
+                                            <option value="">Sélectionner...</option>
+                                            <option th:each="statut : ${statuts}" 
+                                                    th:value="${statut.idStatut}" 
+                                                    th:text="${statut.nom}"
+                                                    th:selected="${pret.statut != null and pret.statut.idStatut == statut.idStatut}">Statut</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('statut')}" th:errors="*{statut}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="type" class="form-label">Type de prêt</label>
+                                        <select class="form-select" id="type" th:field="*{type}">
+                                            <option value="">Sélectionner...</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="urgent">Urgent</option>
+                                            <option value="reservation">Réservation</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/prets" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Retour à la liste
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    Enregistrer les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
