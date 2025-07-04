@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ajouter un Jour Férié</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Ajouter un Jour Férié</h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/joursferies/ajouter}" th:object="${jourFerie}" method="post">
+                        <div class="mb-3">
+                            <label for="nomJourFerie" class="form-label">Nom du jour férié</label>
+                            <input type="text" class="form-control" id="nomJourFerie" th:field="*{nomJourFerie}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dateFerie" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="dateFerie" th:field="*{dateFerie}" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="recurrent" th:field="*{recurrent}">
+                            <label class="form-check-label" for="recurrent">Récurrent (tous les ans)</label>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/joursferies" class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
