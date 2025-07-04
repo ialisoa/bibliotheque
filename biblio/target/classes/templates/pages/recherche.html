@@ -9,8 +9,90 @@
     <div class="row">
         <div class="col-12">
             <h1>🔍 Recherche</h1>
-            <p class="lead">Cette page sera développée prochainement.</p>
-            <a href="/accueil" class="btn btn-primary">← Retour au Dashboard</a>
+            <form class="row g-3 mb-4" method="get" action="/recherche">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="q" th:value="${q}" placeholder="Mot-clé (nom, titre, email...)" required>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="type" th:value="${type}">
+                        <option value="all">Tous types</option>
+                        <option value="livre">Livres</option>
+                        <option value="adherent">Adhérents</option>
+                        <option value="pret">Prêts</option>
+                        <option value="reservation">Réservations</option>
+                        <option value="exemplaire">Exemplaires</option>
+                        <option value="penalite">Pénalités</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Rechercher</button>
+                </div>
+            </form>
+            <div th:if="${q != null}">
+                <h5 th:text="'Résultats pour : ' + ${q}"></h5>
+                <!-- Livres -->
+                <div th:if="${livres != null}">
+                    <h6 class="mt-4"><i class="bi bi-book"></i> Livres</h6>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item" th:each="livre : ${livres}">
+                            <a th:href="@{/livres/{id}(id=${livre.idLivre})}" th:text="${livre.titre}"></a>
+                            <span class="text-muted" th:text="' - ' + ${livre.auteur}"></span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Adhérents -->
+                <div th:if="${adherents != null}">
+                    <h6 class="mt-4"><i class="bi bi-people"></i> Adhérents</h6>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item" th:each="adh : ${adherents}">
+                            <a th:href="@{/adherents/{id}(id=${adh.idAdherent})}" th:text="${adh.nom + ' ' + adh.prenom}"></a>
+                            <span class="text-muted" th:text="' - ' + ${adh.email}"></span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Prêts -->
+                <div th:if="${prets != null}">
+                    <h6 class="mt-4"><i class="bi bi-arrow-left-right"></i> Prêts</h6>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item" th:each="pret : ${prets}">
+                            <a th:href="@{/prets/{id}(id=${pret.idPret})}" th:text="'Prêt #' + ${pret.idPret}"></a>
+                            <span class="text-muted" th:text="' - ' + ${pret.adherent.nom} + ' (' + ${pret.exemplaire.livre.titre} + ')' "></span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Réservations -->
+                <div th:if="${reservations != null}">
+                    <h6 class="mt-4"><i class="bi bi-calendar-check"></i> Réservations</h6>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item" th:each="res : ${reservations}">
+                            <a th:href="@{/reservations/{id}(id=${res.idReservation})}" th:text="'Réservation #' + ${res.idReservation}"></a>
+                            <span class="text-muted" th:text="' - ' + ${res.adherent.nom} + ' (' + ${res.livre.titre} + ')' "></span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Exemplaires -->
+                <div th:if="${exemplaires != null}">
+                    <h6 class="mt-4"><i class="bi bi-collection"></i> Exemplaires</h6>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item" th:each="ex : ${exemplaires}">
+                            <span th:text="'Exemplaire #' + ${ex.idExemplaire} + ' - ' + ${ex.livre.titre}"></span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Pénalités -->
+                <div th:if="${penalites != null}">
+                    <h6 class="mt-4"><i class="bi bi-exclamation-triangle"></i> Pénalités</h6>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item" th:each="pen : ${penalites}">
+                            <span th:text="'Pénalité #' + ${pen.idPenalite} + ' - ' + ${pen.adherent.nom} + ' (' + ${pen.motif} + ')' "></span>
+                        </li>
+                    </ul>
+                </div>
+                <div th:if="${livres == null && adherents == null && prets == null && reservations == null && exemplaires == null && penalites == null}">
+                    <div class="alert alert-warning mt-4">Aucun résultat trouvé.</div>
+                </div>
+            </div>
+            <a href="/accueil" class="btn btn-primary mt-4">← Retour au Dashboard</a>
         </div>
     </div>
 </div>
