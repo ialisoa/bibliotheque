@@ -150,14 +150,31 @@
                                                    title="Modifier">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <form th:if="${pret.dateRenduReelle == null}" 
-                                                      th:action="@{/prets/{id}/retourner(id=${pret.idPret})}" 
-                                                      method="post" 
-                                                      style="display: inline;">
-                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Retourner">
+                                                <form style="display: inline;">
+                                                    <button type="button" class="btn btn-sm btn-outline-success" title="Retourner" data-bs-toggle="modal" th:data-bs-target="${'#returnModal' + pret.idPret}">
                                                         <i class="bi bi-check-circle"></i>
                                                     </button>
                                                 </form>
+                                                <div class="modal fade" th:id="${'returnModal' + pret.idPret}" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <form th:action="@{/prets/{id}/retourner(id=${pret.idPret})}" method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Retourner le prêt</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <label for="dateRenduReelle" class="form-label">Date de retour réelle</label>
+                                                                    <input type="date" class="form-control" name="dateRenduReelle" th:value="${#temporals.createToday()}" required>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                    <button type="submit" class="btn btn-success">Valider le retour</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <form th:if="${pret.dateRenduReelle == null}" 
                                                       th:action="@{/prets/{id}/prolonger(id=${pret.idPret})}" 
                                                       method="post" 

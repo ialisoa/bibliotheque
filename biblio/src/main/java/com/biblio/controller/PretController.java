@@ -280,13 +280,15 @@ public class PretController {
     }
 
     @PostMapping("/{id}/retourner")
-    public String retournerPret(@PathVariable Long id) {
+    public String retournerPret(@PathVariable Long id, @RequestParam(value = "dateRenduReelle", required = false) String dateRenduReelleStr) {
         logger.info("Tentative de retour du prêt ID: {}", id);
         try {
             Pret pret = pretRepository.findById(id).orElseThrow();
-            pret.setDateRenduReelle(java.time.LocalDate.now());
+            java.time.LocalDate dateRenduReelle = dateRenduReelleStr != null && !dateRenduReelleStr.isEmpty()
+                ? java.time.LocalDate.parse(dateRenduReelleStr)
+                : java.time.LocalDate.now();
+            pret.setDateRenduReelle(dateRenduReelle);
             pretRepository.save(pret);
-            
             // Mettre à jour l'état de l'exemplaire à "disponible"
             if (pret.getExemplaire() != null) {
                 Exemplaire exemplaire = exemplaireRepository.findById(pret.getExemplaire().getIdExemplaire()).orElseThrow();
@@ -294,7 +296,6 @@ public class PretController {
                 exemplaireRepository.save(exemplaire);
                 logger.info("État de l'exemplaire {} mis à jour à 'disponible'", exemplaire.getIdExemplaire());
             }
-            
             logger.info("Prêt retourné avec succès ID: {}", id);
             return "redirect:/prets?success=returned";
         } catch (Exception e) {
