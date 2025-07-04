@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ajouter un Livre - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1><i class="bi bi-plus-circle text-primary"></i> Ajouter un Livre</h1>
+                    <a href="/livres" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+
+                <!-- Messages d'erreur -->
+                <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:if="${param.error == 'missing_title'}">Le titre du livre est obligatoire !</span>
+                    <span th:if="${param.error == 'missing_author'}">L'auteur du livre est obligatoire !</span>
+                    <span th:if="${param.error == 'save_failed'}">Erreur lors de la sauvegarde du livre. Veuillez réessayer.</span>
+                    <span th:if="${param.error == 'true'}">Une erreur s'est produite. Veuillez réessayer.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <form th:action="@{/livres/ajouter}" method="post" th:object="${livre}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="titre" class="form-label">Titre *</label>
+                                    <input type="text" class="form-control" id="titre" th:field="*{titre}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="auteur" class="form-label">Auteur *</label>
+                                    <input type="text" class="form-control" id="auteur" th:field="*{auteur}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="isbn" class="form-label">ISBN</label>
+                                    <input type="text" class="form-control" id="isbn" th:field="*{isbn}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="editeur" class="form-label">Éditeur</label>
+                                    <input type="text" class="form-control" id="editeur" th:field="*{editeur}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="anneePublication" class="form-label">Année de publication</label>
+                                    <input type="number" class="form-control" id="anneePublication" th:field="*{anneePublication}" min="1900" max="2024">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="categorie" class="form-label">Catégorie</label>
+                                    <select class="form-select" id="categorie" th:field="*{categorie}">
+                                        <option value="">Sélectionner une catégorie</option>
+                                        <option value="Roman">Roman</option>
+                                        <option value="Science-fiction">Science-fiction</option>
+                                        <option value="Fantasy">Fantasy</option>
+                                        <option value="Policier">Policier</option>
+                                        <option value="Historique">Historique</option>
+                                        <option value="Biographie">Biographie</option>
+                                        <option value="Documentaire">Documentaire</option>
+                                        <option value="Technique">Technique</option>
+                                        <option value="Jeunesse">Jeunesse</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="nombrePages" class="form-label">Nombre de pages</label>
+                                    <input type="number" class="form-control" id="nombrePages" th:field="*{nombrePages}" min="1">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="resume" class="form-label">Résumé</label>
+                                <textarea class="form-control" id="resume" th:field="*{resume}" rows="4" placeholder="Résumé du livre..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="prix" class="form-label">Prix (€)</label>
+                                    <input type="number" class="form-control" id="prix" th:field="*{prix}" step="0.01" min="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="statut" class="form-label">Statut</label>
+                                    <select class="form-select" id="statut" th:field="*{statut}">
+                                        <option value="disponible">Disponible</option>
+                                        <option value="indisponible">Indisponible</option>
+                                        <option value="en_reparation">En réparation</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="/livres" class="btn btn-secondary">Annuler</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Enregistrer le livre
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

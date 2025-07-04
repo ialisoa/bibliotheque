@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ajouter un Adhérent - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="bi bi-person-plus text-primary"></i> Ajouter un Adhérent
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Messages d'erreur -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span th:text="${error}">Erreur</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <form th:action="@{/adherents/ajouter}" th:object="${adherent}" method="post">
+                            <div class="row">
+                                <!-- Informations personnelles -->
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="bi bi-person"></i> Informations Personnelles
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="nom" class="form-label">Nom *</label>
+                                        <input type="text" class="form-control" id="nom" th:field="*{nom}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="prenom" class="form-label">Prénom *</label>
+                                        <input type="text" class="form-control" id="prenom" th:field="*{prenom}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dateNaissance" class="form-label">Date de naissance</label>
+                                        <input type="date" class="form-control" id="dateNaissance" th:field="*{dateNaissance}">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="sexe" class="form-label">Sexe</label>
+                                        <select class="form-select" id="sexe" th:field="*{sexe}">
+                                            <option value="">Sélectionner</option>
+                                            <option value="M">Masculin</option>
+                                            <option value="F">Féminin</option>
+                                            <option value="A">Autre</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" th:field="*{email}">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="telephone" class="form-label">Téléphone</label>
+                                        <input type="tel" class="form-control" id="telephone" th:field="*{telephone}">
+                                    </div>
+                                </div>
+                                
+                                <!-- Adresse et informations complémentaires -->
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="bi bi-geo-alt"></i> Adresse
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="adresse" class="form-label">Adresse</label>
+                                        <textarea class="form-control" id="adresse" th:field="*{adresse}" rows="2"></textarea>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="codePostal" class="form-label">Code postal</label>
+                                                <input type="text" class="form-control" id="codePostal" th:field="*{codePostal}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="ville" class="form-label">Ville</label>
+                                                <input type="text" class="form-control" id="ville" th:field="*{ville}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="pays" class="form-label">Pays</label>
+                                        <input type="text" class="form-control" id="pays" th:field="*{pays}" value="France">
+                                    </div>
+                                    
+                                    <h5 class="text-primary mb-3 mt-4">
+                                        <i class="bi bi-info-circle"></i> Informations Complémentaires
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profession" class="form-label">Profession</label>
+                                        <input type="text" class="form-control" id="profession" th:field="*{profession}">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="type" class="form-label">Type d'adhérent</label>
+                                        <select class="form-select" id="type" th:field="*{type}">
+                                            <option value="">Sélectionner</option>
+                                            <option value="etudiant">Étudiant</option>
+                                            <option value="enseignant">Enseignant</option>
+                                            <option value="personnel">Personnel</option>
+                                            <option value="externe">Externe</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="statut" class="form-label">Statut</label>
+                                        <select class="form-select" id="statut" th:field="*{statut}">
+                                            <option value="actif">Actif</option>
+                                            <option value="inactif">Inactif</option>
+                                            <option value="suspendu">Suspendu</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label">Notes</label>
+                                        <textarea class="form-control" id="notes" th:field="*{notes}" rows="3" placeholder="Informations complémentaires..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/adherents" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Enregistrer l'adhérent
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

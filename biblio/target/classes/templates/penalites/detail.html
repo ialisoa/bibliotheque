@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails de la pénalité - Bibliothèque</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Détails de la pénalité
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h3 th:text="${penalite.adherent.nom + ' ' + penalite.adherent.prenom}">Nom de l'adhérent</h3>
+                                <p class="text-muted mb-4">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    <span th:text="${#temporals.format(penalite.dateDebut, 'dd/MM/yyyy')}">Date de début de la pénalité</span>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <span th:if="${penalite.dateFin == null}" class="badge bg-danger fs-6">Active</span>
+                                <span th:if="${penalite.dateFin != null}" class="badge bg-success fs-6">Terminée</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Informations de la pénalité</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th width="150">Date de début :</th>
+                                        <td th:text="${#temporals.format(penalite.dateDebut, 'dd/MM/yyyy')}">Date de début</td>
+                                    </tr>
+                                    <tr th:if="${penalite.dateFin != null}">
+                                        <th>Date de fin :</th>
+                                        <td th:text="${#temporals.format(penalite.dateFin, 'dd/MM/yyyy')}">Date de fin</td>
+                                    </tr>
+                                    <tr th:if="${penalite.montant != null}">
+                                        <th>Montant :</th>
+                                        <td th:text="${penalite.montant + ' €'}">Montant</td>
+                                    </tr>
+                                    <tr th:if="${penalite.motif != null && !penalite.motif.isEmpty()}">
+                                        <th>Motif :</th>
+                                        <td th:text="${penalite.motif}">Motif</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Informations de l'adhérent</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th width="150">Nom :</th>
+                                        <td th:text="${penalite.adherent.nom + ' ' + penalite.adherent.prenom}">Nom complet</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email :</th>
+                                        <td th:text="${penalite.adherent.email}">Email</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Téléphone :</th>
+                                        <td th:text="${penalite.adherent.telephone}">Téléphone</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Statut :</th>
+                                        <td>
+                                            <span th:if="${penalite.adherent.statut == 'actif'}" class="badge bg-success">Actif</span>
+                                            <span th:if="${penalite.adherent.statut == 'inactif'}" class="badge bg-secondary">Inactif</span>
+                                            <span th:if="${penalite.adherent.statut == 'suspendu'}" class="badge bg-danger">Suspendu</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4" th:if="${penalite.motif != null && !penalite.motif.isEmpty()}">
+                            <div class="col-12">
+                                <h5>Motif</h5>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p th:text="${penalite.motif}">Motif de la pénalité</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4" th:if="${penalite.pret != null}">
+                            <div class="col-12">
+                                <h5>Prêt associé</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th width="150">Livre :</th>
+                                        <td th:text="${penalite.pret.exemplaire.livre.titre}">Titre du livre</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Date de prêt :</th>
+                                        <td th:text="${#temporals.format(penalite.pret.datePret, 'dd/MM/yyyy')}">Date de prêt</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Date de retour prévue :</th>
+                                        <td th:text="${#temporals.format(penalite.pret.dateRenduPrevue, 'dd/MM/yyyy')}">Date de retour prévue</td>
+                                    </tr>
+                                    <tr th:if="${penalite.pret.dateRenduReelle != null}">
+                                        <th>Date de retour réelle :</th>
+                                        <td th:text="${#temporals.format(penalite.pret.dateRenduReelle, 'dd/MM/yyyy')}">Date de retour réelle</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/penalites" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Retour à la liste
+                            </a>
+                            <div>
+                                <a th:href="@{/penalites/{id}/modifier(id=${penalite.idPenalite})}" class="btn btn-primary me-2">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Modifier
+                                </a>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-2"></i>
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer cette pénalité ?</p>
+                    <p class="text-danger"><small>Cette action est irréversible.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="@{/penalites/{id}/supprimer(id=${penalite.idPenalite})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

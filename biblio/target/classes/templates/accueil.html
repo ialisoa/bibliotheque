@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .dashboard-card {
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: #2c3e50;
+        }
+        .sidebar .nav-link {
+            color: #ecf0f1;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin: 2px 0;
+        }
+        .sidebar .nav-link:hover {
+            background: #34495e;
+            color: white;
+        }
+        .sidebar .nav-link.active {
+            background: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">📚 Biblio</h4>
+                        <small class="text-muted">Gestion de Bibliothèque</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/accueil">
+                                <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/livres">
+                                <i class="bi bi-book"></i> Gestion des Livres
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/exemplaires">
+                                <i class="bi bi-collection"></i> Exemplaires
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/adherents">
+                                <i class="bi bi-people"></i> Adhérents
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/prets">
+                                <i class="bi bi-arrow-left-right"></i> Prêts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reservations">
+                                <i class="bi bi-calendar-check"></i> Réservations
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/penalites">
+                                <i class="bi bi-exclamation-triangle"></i> Pénalités
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/parametres">
+                                <i class="bi bi-gear"></i> Paramètres
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i> Déconnexion
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <span class="badge bg-primary">Connecté en tant que: admin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques rapides -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total Livres</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${totalLivres}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-book fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Prêts Actifs</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${pretsActifs}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-arrow-left-right fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Adhérents</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${totalAdherents}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-people fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Retards</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${pretsEnRetard}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-exclamation-triangle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques supplémentaires -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-secondary shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Exemplaires Disponibles</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${exemplairesDisponibles}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-collection fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-dark shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Réservations en Attente</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${reservationsEnAttente}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-calendar-check fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Pénalités Actives</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${penalitesActives}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-shield-exclamation fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-light shadow h-100 py-2 stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total Prêts</div>
+                                        <div class="h5 mb-0 font-weight-bold" th:text="${totalPrets}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-arrow-left-right fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4>Actions rapides</h4>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-plus-circle text-primary" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Nouveau Livre</h5>
+                                <p class="card-text">Ajouter un nouveau livre à la bibliothèque</p>
+                                <a href="/livres/ajouter" class="btn btn-primary">Ajouter</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-person-plus text-success" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Nouvel Adhérent</h5>
+                                <p class="card-text">Inscrire un nouvel adhérent</p>
+                                <a href="/adherents/ajouter" class="btn btn-success">Inscrire</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-arrow-up-circle text-info" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Nouveau Prêt</h5>
+                                <p class="card-text">Enregistrer un nouveau prêt</p>
+                                <a href="/prets/ajouter" class="btn btn-info">Prêter</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-search text-warning" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Rechercher</h5>
+                                <p class="card-text">Rechercher dans la bibliothèque</p>
+                                <a href="/recherche" class="btn btn-warning">Rechercher</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activité récente -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            Activité récente
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                        <th>Utilisateur</th>
+                                        <th>Détails</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${#lists.isEmpty(activiteRecente)}">
+                                        <td colspan="4" class="text-center text-muted">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Aucune activité récente
+                                        </td>
+                                    </tr>
+                                    <tr th:each="activite : ${activiteRecente}">
+                                        <td th:text="${#temporals.format(activite.date, 'dd/MM/yyyy')}">Date</td>
+                                        <td>
+                                            <span th:switch="${activite.type}" class="badge">
+                                                <span th:case="'pret'" class="badge bg-success">Prêt</span>
+                                                <span th:case="'retour'" class="badge bg-info">Retour</span>
+                                                <span th:case="'reservation'" class="badge bg-warning">Réservation</span>
+                                                <span th:case="'penalite'" class="badge bg-danger">Pénalité</span>
+                                                <span th:case="*" class="badge bg-secondary" th:text="${activite.action}">Action</span>
+                                            </span>
+                                        </td>
+                                        <td th:text="${activite.utilisateur}">Utilisateur</td>
+                                        <td th:text="${activite.details}">Détails</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

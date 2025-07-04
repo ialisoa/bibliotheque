@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un livre - Bibliothèque</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-edit me-2"></i>
+                            Modifier un livre
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/livres/{id}/modifier(id=${livre.idLivre})}" th:object="${livre}" method="post">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="titre" class="form-label">Titre *</label>
+                                        <input type="text" class="form-control" id="titre" th:field="*{titre}" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('titre')}" th:errors="*{titre}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="statut" class="form-label">Statut</label>
+                                        <select class="form-select" id="statut" th:field="*{statut}">
+                                            <option value="">Sélectionner...</option>
+                                            <option value="disponible">Disponible</option>
+                                            <option value="emprunte">Emprunté</option>
+                                            <option value="perdu">Perdu</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('statut')}" th:errors="*{statut}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="auteur" class="form-label">Auteur *</label>
+                                        <input type="text" class="form-control" id="auteur" th:field="*{auteur}" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('auteur')}" th:errors="*{auteur}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editeur" class="form-label">Éditeur</label>
+                                        <input type="text" class="form-control" id="editeur" th:field="*{editeur}">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('editeur')}" th:errors="*{editeur}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="anneePublication" class="form-label">Année de publication</label>
+                                        <input type="number" class="form-control" id="anneePublication" th:field="*{anneePublication}" min="1000" max="2100">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('anneePublication')}" th:errors="*{anneePublication}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="isbn" class="form-label">ISBN</label>
+                                        <input type="text" class="form-control" id="isbn" th:field="*{isbn}">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="categorie" class="form-label">Catégorie</label>
+                                        <select class="form-select" id="categorie" th:field="*{categorie}">
+                                            <option value="">Sélectionner...</option>
+                                            <option value="Roman">Roman</option>
+                                            <option value="Science-fiction">Science-fiction</option>
+                                            <option value="Fantasy">Fantasy</option>
+                                            <option value="Policier">Policier</option>
+                                            <option value="Historique">Historique</option>
+                                            <option value="Biographie">Biographie</option>
+                                            <option value="Documentaire">Documentaire</option>
+                                            <option value="Poésie">Poésie</option>
+                                            <option value="Théâtre">Théâtre</option>
+                                            <option value="Essai">Essai</option>
+                                            <option value="Autre">Autre</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('categorie')}" th:errors="*{categorie}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="nombrePages" class="form-label">Nombre de pages</label>
+                                        <input type="number" class="form-control" id="nombrePages" th:field="*{nombrePages}" min="1">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombrePages')}" th:errors="*{nombrePages}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="prix" class="form-label">Prix (€)</label>
+                                        <input type="number" class="form-control" id="prix" th:field="*{prix}" min="0" step="0.01">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('prix')}" th:errors="*{prix}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="langue" class="form-label">Langue</label>
+                                        <select class="form-select" id="langue" th:field="*{langue}">
+                                            <option value="">Sélectionner...</option>
+                                            <option value="Français">Français</option>
+                                            <option value="Anglais">Anglais</option>
+                                            <option value="Espagnol">Espagnol</option>
+                                            <option value="Allemand">Allemand</option>
+                                            <option value="Italien">Italien</option>
+                                            <option value="Autre">Autre</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('langue')}" th:errors="*{langue}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="ageMinimum" class="form-label">Âge minimum</label>
+                                        <input type="number" class="form-control" id="ageMinimum" th:field="*{ageMinimum}" min="0" max="18">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('ageMinimum')}" th:errors="*{ageMinimum}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="edition" class="form-label">Édition</label>
+                                        <input type="text" class="form-control" id="edition" th:field="*{edition}">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('edition')}" th:errors="*{edition}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="nombreExemplaires" class="form-label">Nombre d'exemplaires</label>
+                                        <input type="number" class="form-control" id="nombreExemplaires" th:field="*{nombreExemplaires}" min="0">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreExemplaires')}" th:errors="*{nombreExemplaires}"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="resume" class="form-label">Résumé</label>
+                                <textarea class="form-control" id="resume" th:field="*{resume}" rows="4"></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('resume')}" th:errors="*{resume}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="cv" class="form-label">Curriculum Vitae de l'auteur</label>
+                                <textarea class="form-control" id="cv" th:field="*{cv}" rows="3"></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('cv')}" th:errors="*{cv}"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/livres" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Retour à la liste
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    Enregistrer les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

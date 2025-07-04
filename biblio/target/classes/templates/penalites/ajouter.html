@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ajouter une Pénalité - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="bi bi-exclamation-triangle text-warning"></i> Ajouter une Pénalité
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Messages d'erreur -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span th:text="${error}">Erreur</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <form th:action="@{/penalites/ajouter}" th:object="${penalite}" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="bi bi-person"></i> Adhérent
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="adherent" class="form-label">Adhérent *</label>
+                                        <select class="form-select" id="adherent" th:field="*{adherent}" required>
+                                            <option value="">Sélectionner un adhérent</option>
+                                            <option th:each="adherent : ${adherents}" 
+                                                    th:value="${adherent.idAdherent}" 
+                                                    th:text="${adherent.nom + ' ' + adherent.prenom + ' (' + adherent.email + ')'}">
+                                                Nom Prénom (email)
+                                            </option>
+                                        </select>
+                                        <div class="form-text">Choisissez l'adhérent concerné par la pénalité</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="pret" class="form-label">Prêt associé (optionnel)</label>
+                                        <select class="form-select" id="pret" th:field="*{pret}">
+                                            <option value="">Aucun prêt associé</option>
+                                            <option th:each="pret : ${prets}" 
+                                                    th:value="${pret.idPret}" 
+                                                    th:text="'Prêt #' + ${pret.idPret} + ' - ' + ${pret.adherent.nom} + ' ' + ${pret.adherent.prenom}">
+                                                Prêt #1 - Nom Prénom
+                                            </option>
+                                        </select>
+                                        <div class="form-text">Associer à un prêt spécifique si applicable</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="bi bi-calendar"></i> Période et Montant
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dateDebut" class="form-label">Date de début *</label>
+                                        <input type="date" class="form-control" id="dateDebut" th:field="*{dateDebut}" required>
+                                        <div class="form-text">Date de début de la pénalité</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dateFin" class="form-label">Date de fin</label>
+                                        <input type="date" class="form-control" id="dateFin" th:field="*{dateFin}">
+                                        <div class="form-text">Date de fin (optionnelle)</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="montant" class="form-label">Montant *</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="montant" th:field="*{montant}" step="0.01" min="0" required>
+                                            <span class="input-group-text">€</span>
+                                        </div>
+                                        <div class="form-text">Montant de la pénalité en euros</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="motif" class="form-label">Motif de la pénalité *</label>
+                                <textarea class="form-control" id="motif" th:field="*{motif}" rows="4" required placeholder="Décrivez le motif de la pénalité (retard, dégradation, perte, etc.)..."></textarea>
+                                <div class="form-text">Description détaillée du motif de la pénalité</div>
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Informations importantes :</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>La date de début sera automatiquement définie à aujourd'hui si non spécifiée</li>
+                                    <li>Le montant doit être positif</li>
+                                    <li>Le motif est obligatoire pour justifier la pénalité</li>
+                                    <li>Une pénalité peut être associée à un prêt spécifique ou être indépendante</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/penalites" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-check-circle"></i> Enregistrer la pénalité
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Définir la date de début à aujourd'hui par défaut
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateDebut = document.getElementById('dateDebut');
+            if (dateDebut && !dateDebut.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateDebut.value = today;
+            }
+        });
+    </script>
+</body>
+</html> 

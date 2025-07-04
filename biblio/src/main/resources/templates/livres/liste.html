@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gestion des Livres - Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1><i class="bi bi-book text-primary"></i> Gestion des Livres</h1>
+                    <a href="/livres/ajouter" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nouveau Livre
+                    </a>
+                </div>
+
+                <!-- Messages de succès/erreur -->
+                <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:if="${param.success == 'true'}">Livre ajouté avec succès !</span>
+                    <span th:if="${param.success == 'modified'}">Livre modifié avec succès !</span>
+                    <span th:if="${param.success == 'deleted'}">Livre supprimé avec succès !</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:if="${param.error == 'notfound'}">Livre non trouvé !</span>
+                    <span th:if="${param.error == 'delete'}">Erreur lors de la suppression !</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Barre de recherche -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/livres}" method="get" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="titre" class="form-label">Titre</label>
+                                <input type="text" class="form-control" id="titre" name="titre" th:value="${param.titre}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="auteur" class="form-label">Auteur</label>
+                                <input type="text" class="form-control" id="auteur" name="auteur" th:value="${param.auteur}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="categorie" class="form-label">Catégorie</label>
+                                <select class="form-select" id="categorie" name="categorie">
+                                    <option value="">Toutes les catégories</option>
+                                    <option value="Roman" th:selected="${param.categorie == 'Roman'}">Roman</option>
+                                    <option value="Science-fiction" th:selected="${param.categorie == 'Science-fiction'}">Science-fiction</option>
+                                    <option value="Fantasy" th:selected="${param.categorie == 'Fantasy'}">Fantasy</option>
+                                    <option value="Policier" th:selected="${param.categorie == 'Policier'}">Policier</option>
+                                    <option value="Historique" th:selected="${param.categorie == 'Historique'}">Historique</option>
+                                    <option value="Biographie" th:selected="${param.categorie == 'Biographie'}">Biographie</option>
+                                    <option value="Documentaire" th:selected="${param.categorie == 'Documentaire'}">Documentaire</option>
+                                    <option value="Technique" th:selected="${param.categorie == 'Technique'}">Technique</option>
+                                    <option value="Jeunesse" th:selected="${param.categorie == 'Jeunesse'}">Jeunesse</option>
+                                    <option value="Autre" th:selected="${param.categorie == 'Autre'}">Autre</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Rechercher
+                                </button>
+                                <a href="/livres" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-clockwise"></i> Réinitialiser
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Liste des livres -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list"></i> Liste des Livres 
+                            <span class="badge bg-primary" th:text="${#lists.size(livres)}">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(livres)}" class="text-center py-5">
+                            <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+                            <h4 class="text-muted mt-3">Aucun livre trouvé</h4>
+                            <p class="text-muted">Commencez par ajouter votre premier livre !</p>
+                            <a href="/livres/ajouter" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Ajouter un livre
+                            </a>
+                        </div>
+
+                        <div th:if="${!#lists.isEmpty(livres)}" class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Titre</th>
+                                        <th>Auteur</th>
+                                        <th>Catégorie</th>
+                                        <th>ISBN</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="livre : ${livres}">
+                                        <td th:text="${livre.idLivre}">1</td>
+                                        <td>
+                                            <strong th:text="${livre.titre}">Titre</strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${livre.editeur}">Éditeur</small>
+                                        </td>
+                                        <td th:text="${livre.auteur}">Auteur</td>
+                                        <td>
+                                            <span class="badge bg-info" th:text="${livre.categorie}">Catégorie</span>
+                                        </td>
+                                        <td th:text="${livre.isbn}">ISBN</td>
+                                        <td>
+                                            <span th:if="${livre.statut == 'disponible'}" class="badge bg-success">Disponible</span>
+                                            <span th:if="${livre.statut == 'indisponible'}" class="badge bg-danger">Indisponible</span>
+                                            <span th:if="${livre.statut == 'en_reparation'}" class="badge bg-warning">En réparation</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/livres/{id}(id=${livre.idLivre})}" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="Voir les détails">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a th:href="@{/livres/{id}/modifier(id=${livre.idLivre})}" 
+                                                   class="btn btn-sm btn-outline-warning" 
+                                                   title="Modifier">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-danger" 
+                                                        title="Supprimer"
+                                                        th:data-id="${livre.idLivre}"
+                                                        th:data-titre="${livre.titre}"
+                                                        onclick="confirmDelete(this.dataset.id, this.dataset.titre)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton retour -->
+                <div class="mt-4">
+                    <a href="/accueil" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour au Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer le livre <strong id="livreTitre"></strong> ?</p>
+                    <p class="text-danger"><small>Cette action est irréversible.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(id, titre) {
+            document.getElementById('livreTitre').textContent = titre;
+            document.getElementById('deleteForm').action = '/livres/' + id + '/supprimer';
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+</body>
+</html> 
