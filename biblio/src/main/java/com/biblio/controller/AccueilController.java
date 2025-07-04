@@ -6,9 +6,11 @@ import com.biblio.repository.AdherentRepository;
 import com.biblio.repository.ExemplaireRepository;
 import com.biblio.repository.ReservationRepository;
 import com.biblio.repository.PenaliteRepository;
+import com.biblio.repository.CommentaireRepository;
 import com.biblio.model.Pret;
 import com.biblio.model.Reservation;
 import com.biblio.model.Penalite;
+import com.biblio.model.Livre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,6 +45,9 @@ public class AccueilController {
     
     @Autowired
     private PenaliteRepository penaliteRepository;
+    
+    @Autowired
+    private CommentaireRepository commentaireRepository;
     
     @GetMapping({"/", "/accueil"})
     public String accueil(Model model) {
@@ -182,6 +187,21 @@ public class AccueilController {
                 logger.warn("Impossible de récupérer l'activité récente: {}", e.getMessage());
             }
             
+            // Statistiques dynamiques du jour
+            LocalDate today = LocalDate.now();
+            long pretsAujourdHui = pretRepository.countByDatePret(today);
+            long retoursAujourdHui = pretRepository.countByDateRenduReelle(today);
+            long reservationsAujourdHui = reservationRepository.countByDateReservation(today);
+            long penalitesAujourdHui = penaliteRepository.countByDateDebut(today);
+            
+            // Moyenne des notes par livre
+            List<Livre> livres = livreRepository.findAll();
+            Map<Long, Double> moyennesLivres = new HashMap<>();
+            for (Livre livre : livres) {
+                Double moyenne = commentaireRepository.findAverageNoteByLivre(livre);
+                moyennesLivres.put(livre.getIdLivre(), moyenne != null ? moyenne : 0.0);
+            }
+            
             // Ajouter les statistiques au modèle
             model.addAttribute("totalLivres", totalLivres);
             model.addAttribute("exemplairesDisponibles", exemplairesDisponibles);
@@ -196,6 +216,11 @@ public class AccueilController {
             model.addAttribute("totalPenalites", totalPenalites);
             model.addAttribute("penalitesActives", penalitesActives);
             model.addAttribute("activiteRecente", activiteRecente);
+            model.addAttribute("pretsAujourdHui", pretsAujourdHui);
+            model.addAttribute("retoursAujourdHui", retoursAujourdHui);
+            model.addAttribute("reservationsAujourdHui", reservationsAujourdHui);
+            model.addAttribute("penalitesAujourdHui", penalitesAujourdHui);
+            model.addAttribute("moyennesLivres", moyennesLivres);
             
             logger.info("Statistiques calculées - Livres: {}, Prêts actifs: {}, Adhérents: {}, Retards: {}, Pénalités: {}", 
                 totalLivres, pretsActifs, totalAdherents, pretsEnRetard, totalPenalites);
@@ -216,6 +241,11 @@ public class AccueilController {
             model.addAttribute("totalPenalites", 0);
             model.addAttribute("penalitesActives", 0);
             model.addAttribute("activiteRecente", new ArrayList<>());
+            model.addAttribute("pretsAujourdHui", 0);
+            model.addAttribute("retoursAujourdHui", 0);
+            model.addAttribute("reservationsAujourdHui", 0);
+            model.addAttribute("penalitesAujourdHui", 0);
+            model.addAttribute("moyennesLivres", new HashMap<>());
         }
         
         return "accueil"; // Thymeleaf: accueil.html

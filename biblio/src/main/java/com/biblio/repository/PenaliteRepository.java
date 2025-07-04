@@ -21,4 +21,7 @@ public interface PenaliteRepository extends JpaRepository<Penalite, Long> {
 
     List<Penalite> findByAdherentAndDateFinIsNull(Adherent adherent);
     List<Penalite> findByAdherentOrderByDateDebutDesc(Adherent adherent);
+
+    // Nombre de pénalités créées à une date donnée
+    long countByDateDebut(java.time.LocalDate dateDebut);
 } 

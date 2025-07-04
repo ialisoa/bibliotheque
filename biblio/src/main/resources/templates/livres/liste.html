@@ -141,6 +141,14 @@
                                                         onclick="confirmDelete(this.dataset.id, this.dataset.titre)">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-success" 
+                                                        title="Noter le livre"
+                                                        th:data-id="${livre.idLivre}"
+                                                        th:data-titre="${livre.titre}"
+                                                        onclick="openNoteModal(this.dataset.id, this.dataset.titre)">
+                                                    <i class="bi bi-star"></i>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -182,12 +190,55 @@
         </div>
     </div>
 
+    <!-- Modal de notation -->
+    <div class="modal fade" id="noteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Noter le livre <span id="noteLivreTitre"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="noteForm" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="noteValue" class="form-label">Note</label>
+                            <select id="noteValue" name="note" class="form-select" required>
+                                <option value="">Choisir...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="noteTexte" class="form-label">Avis (optionnel)</label>
+                            <input type="text" id="noteTexte" name="texte" class="form-control" maxlength="1000">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-success">Noter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function confirmDelete(id, titre) {
             document.getElementById('livreTitre').textContent = titre;
             document.getElementById('deleteForm').action = '/livres/' + id + '/supprimer';
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        function openNoteModal(id, titre) {
+            document.getElementById('noteLivreTitre').textContent = titre;
+            document.getElementById('noteForm').action = '/livres/' + id + '/noter';
+            document.getElementById('noteValue').value = '';
+            document.getElementById('noteTexte').value = '';
+            new bootstrap.Modal(document.getElementById('noteModal')).show();
         }
     </script>
 </body>

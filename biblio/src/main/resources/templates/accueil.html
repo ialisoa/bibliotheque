@@ -340,6 +340,135 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Statistiques dynamiques du jour -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card stats-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i> Statistiques du jour</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-3 mb-2">
+                                        <span class="fw-bold">Prêts aujourd'hui :</span>
+                                        <span th:text="${pretsAujourdHui}">0</span>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <span class="fw-bold">Retours aujourd'hui :</span>
+                                        <span th:text="${retoursAujourdHui}">0</span>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <span class="fw-bold">Réservations aujourd'hui :</span>
+                                        <span th:text="${reservationsAujourdHui}">0</span>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <span class="fw-bold">Pénalités aujourd'hui :</span>
+                                        <span th:text="${penalitesAujourdHui}">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques dynamiques du jour (graphe) -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card stats-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i> Statistiques du jour (Graphique)</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="statsJourChart" height="80"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script th:inline="javascript">
+                    /*<![CDATA[*/
+                    var ctx = document.getElementById('statsJourChart').getContext('2d');
+                    var statsJourChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Prêts', 'Retours', 'Réservations', 'Pénalités'],
+                            datasets: [{
+                                label: 'Nombre aujourd\'hui',
+                                data: [
+                                    [[${pretsAujourdHui}]],
+                                    [[${retoursAujourdHui}]],
+                                    [[${reservationsAujourdHui}]],
+                                    [[${penalitesAujourdHui}]]
+                                ],
+                                backgroundColor: [
+                                    'rgba(54, 162, 235, 0.7)',
+                                    'rgba(75, 192, 192, 0.7)',
+                                    'rgba(255, 206, 86, 0.7)',
+                                    'rgba(255, 99, 132, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(255, 99, 132, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                title: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    precision: 0
+                                }
+                            }
+                        }
+                    });
+                    /*]]>*/
+                </script>
+
+                <!-- Moyenne des notes par livre -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card stats-card">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="bi bi-star-half me-2"></i> Moyenne des avis par livre</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong>Moyenne globale :</strong>
+                                    <span th:text="${#numbers.formatDecimal((#lists.isEmpty(moyennesLivres.values()) ? 0 : moyennesLivres.values().stream().mapToDouble(x->x).average().orElse(0)), 1, 1)}">0.0</span> / 5
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Titre</th>
+                                                <th>Auteur</th>
+                                                <th>Moyenne des notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="livre : ${#lists.newArrayList(moyennesLivres.keySet())}">
+                                                <td th:text="${livreRepository.findById(livre).get().titre}">Titre</td>
+                                                <td th:text="${livreRepository.findById(livre).get().auteur}">Auteur</td>
+                                                <td>
+                                                    <span th:text="${#numbers.formatDecimal(moyennesLivres[livre], 1, 1)}">0.0</span> / 5
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>

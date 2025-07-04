@@ -48,6 +48,9 @@
                         <p class="text-white-50 mt-2 mb-0">
                             <small>Expire le <span th:text="${#temporals.format(adherent.dateExpiration, 'dd/MM/yyyy')}">01/01/2026</span></small>
                         </p>
+                        <a href="/logout" class="btn btn-outline-light btn-sm mt-2" title="Se déconnecter">
+                            <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
+                        </a>
                     </div>
                 </div>
             </div>
@@ -300,6 +303,100 @@
                                     <span class="badge bg-secondary">Terminé</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques dynamiques du jour (graphe) -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card stats-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Statistiques du jour (Graphique)</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="statsJourChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var ctx = document.getElementById('statsJourChart').getContext('2d');
+            var statsJourChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Prêts', 'Retours', 'Réservations', 'Pénalités'],
+                    datasets: [{
+                        label: 'Nombre aujourd\'hui',
+                        data: [
+                            [[${pretsAujourdHui}]],
+                            [[${retoursAujourdHui}]],
+                            [[${reservationsAujourdHui}]],
+                            [[${penalitesAujourdHui}]]
+                        ],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(255, 99, 132, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            precision: 0
+                        }
+                    }
+                }
+            });
+            /*]]>*/
+        </script>
+
+        <!-- Moyenne des notes par livre -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card stats-card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-star-half-alt me-2"></i> Moyenne des avis par livre</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Auteur</th>
+                                        <th>Moyenne des notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="livre : ${livres}">
+                                        <td th:text="${livre.titre}">Titre</td>
+                                        <td th:text="${livre.auteur}">Auteur</td>
+                                        <td>
+                                            <span th:text="${#numbers.formatDecimal(moyennesLivres[livre.idLivre], 1, 1)}">0.0</span> / 5
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
