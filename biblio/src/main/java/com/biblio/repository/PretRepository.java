@@ -28,4 +28,10 @@ public interface PretRepository extends JpaRepository<Pret, Long> {
     List<Pret> findByAdherentAndDateRenduReelleIsNotNullOrderByDateRenduReelleDesc(Adherent adherent);
     List<Pret> findByAdherentOrderByDatePretDesc(Adherent adherent);
     long countByAdherent(Adherent adherent);
+
+    // Nombre de prêts à une date donnée
+    long countByDatePret(java.time.LocalDate datePret);
+
+    // Nombre de retours à une date donnée
+    long countByDateRenduReelle(java.time.LocalDate dateRenduReelle);
 } 

@@ -160,7 +160,7 @@
                                 <th>Jours restants :</th>
                                 <td>
                                     <i class="fas fa-clock text-muted me-1"></i>
-                                    <span th:text="${#temporals.between(#temporals.createToday(), adherent.dateExpiration).days}">365</span> jours
+                                    <span th:text="${daysBetween}">365</span> jours
                                 </td>
                             </tr>
                         </table>

@@ -21,4 +21,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findByAdherentAndEtatNot(Adherent adherent, String etat);
     List<Reservation> findByAdherentOrderByDateReservationDesc(Adherent adherent);
+
+    // Nombre de réservations à une date donnée
+    long countByDateReservation(java.time.LocalDate dateReservation);
 } 

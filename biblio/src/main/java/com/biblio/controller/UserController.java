@@ -8,6 +8,9 @@ import com.biblio.repository.AdherentRepository;
 import com.biblio.repository.PenaliteRepository;
 import com.biblio.repository.PretRepository;
 import com.biblio.repository.ReservationRepository;
+import com.biblio.repository.CommentaireRepository;
+import com.biblio.repository.LivreRepository;
+import com.biblio.model.Livre;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/user")
@@ -37,6 +43,12 @@ public class UserController {
     
     @Autowired
     private PenaliteRepository penaliteRepository;
+    
+    @Autowired
+    private CommentaireRepository commentaireRepository;
+    
+    @Autowired
+    private LivreRepository livreRepository;
     
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -70,6 +82,27 @@ public class UserController {
         long reservationsEnCours = reservations.size();
         long penalitesActives = penalites.size();
         
+        // Statistiques dynamiques du jour (pour l'adhérent)
+        LocalDate today = LocalDate.now();
+        long pretsAujourdHui = pretsActifs.stream().filter(p -> p.getDatePret() != null && p.getDatePret().isEqual(today)).count();
+        long retoursAujourdHui = pretsTermines.stream().filter(p -> p.getDateRenduReelle() != null && p.getDateRenduReelle().isEqual(today)).count();
+        long reservationsAujourdHui = reservations.stream().filter(r -> r.getDateReservation() != null && r.getDateReservation().isEqual(today)).count();
+        long penalitesAujourdHui = penalites.stream().filter(p -> p.getDateDebut() != null && p.getDateDebut().isEqual(today)).count();
+        model.addAttribute("pretsAujourdHui", pretsAujourdHui);
+        model.addAttribute("retoursAujourdHui", retoursAujourdHui);
+        model.addAttribute("reservationsAujourdHui", reservationsAujourdHui);
+        model.addAttribute("penalitesAujourdHui", penalitesAujourdHui);
+        
+        // Moyenne des notes par livre (pour tous les livres)
+        List<Livre> livres = livreRepository.findAll();
+        Map<Long, Double> moyennesLivres = new HashMap<>();
+        for (Livre livre : livres) {
+            Double moyenne = commentaireRepository.findAverageNoteByLivre(livre);
+            moyennesLivres.put(livre.getIdLivre(), moyenne != null ? moyenne : 0.0);
+        }
+        model.addAttribute("moyennesLivres", moyennesLivres);
+        model.addAttribute("livres", livres);
+        
         // Ajouter les données au modèle
         model.addAttribute("adherent", adherent);
         model.addAttribute("pretsActifs", pretsActifs);
@@ -98,6 +131,15 @@ public class UserController {
             .orElseThrow(() -> new RuntimeException("Adhérent non trouvé"));
         
         model.addAttribute("adherent", adherent);
+        
+        // Calcul de la différence en jours entre aujourd'hui et la date d'expiration
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate expiration = adherent.getDateExpiration();
+        long daysBetween = 0;
+        if (expiration != null) {
+            daysBetween = java.time.temporal.ChronoUnit.DAYS.between(today, expiration);
+        }
+        model.addAttribute("daysBetween", daysBetween);
         
         return "user/profile";
     }

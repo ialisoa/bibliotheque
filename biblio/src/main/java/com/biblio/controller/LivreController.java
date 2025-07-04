@@ -8,6 +8,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.biblio.model.Commentaire;
+import com.biblio.repository.CommentaireRepository;
+import com.biblio.service.CommentaireService;
+import java.time.LocalDate;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -18,6 +23,10 @@ public class LivreController {
 
     @Autowired
     private LivreService livreService;
+    @Autowired
+    private CommentaireService commentaireService;
+    @Autowired
+    private CommentaireRepository commentaireRepository;
 
     @GetMapping
     public String listeLivres(Model model) {
@@ -71,12 +80,19 @@ public class LivreController {
     @GetMapping("/{id}")
     public String detailLivre(@PathVariable Long id, Model model) {
         logger.info("Accès au détail du livre ID: {}", id);
-        return livreService.getLivreById(id)
-            .map(livre -> {
-                model.addAttribute("livre", livre);
-                return "livres/detail";
-            })
-            .orElse("redirect:/livres?error=notfound");
+        Optional<Livre> optLivre = livreService.getLivreById(id);
+        if (optLivre.isPresent()) {
+            Livre livre = optLivre.get();
+            model.addAttribute("livre", livre);
+            // Afficher les commentaires et la moyenne
+            Double moyenne = commentaireRepository.findAverageNoteByLivre(livre);
+            model.addAttribute("moyenneNote", moyenne != null ? moyenne : 0.0);
+            model.addAttribute("commentaires", commentaireRepository.findAll().stream().filter(c -> c.getLivre().getIdLivre().equals(id)).toList());
+            model.addAttribute("nouveauCommentaire", new Commentaire());
+            return "livres/detail";
+        } else {
+            return "redirect:/livres?error=notfound";
+        }
     }
 
     @GetMapping("/{id}/modifier")
@@ -125,5 +141,19 @@ public class LivreController {
         List<Livre> livres = livreService.rechercherLivres(titre, auteur, langue);
         model.addAttribute("livres", livres);
         return "livres";
+    }
+
+    @PostMapping("/{id}/noter")
+    public String noterLivre(@PathVariable Long id, @ModelAttribute Commentaire nouveauCommentaire) {
+        Optional<Livre> optLivre = livreService.getLivreById(id);
+        if (optLivre.isPresent()) {
+            Livre livre = optLivre.get();
+            nouveauCommentaire.setLivre(livre);
+            nouveauCommentaire.setDate(LocalDate.now());
+            // Pour l'admin, pas d'adherent associé
+            nouveauCommentaire.setAdherent(null);
+            commentaireService.ajouterCommentaire(nouveauCommentaire);
+        }
+        return "redirect:/livres/" + id;
     }
 }

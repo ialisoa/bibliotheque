@@ -98,8 +98,6 @@
                             </div>
                         </div>
 
-
-
                         <div class="row mt-4" th:if="${livre.resume != null && livre.resume != ''}">
                             <div class="col-12">
                                 <h5>Résumé</h5>
@@ -116,6 +114,51 @@
                                 <div class="alert alert-warning">
                                     <i class="fas fa-user-tie me-2"></i>
                                     <span th:text="${livre.cv}">CV</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloc avis et notation -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Avis et notation</h5>
+                                <div class="mb-2">
+                                    <strong>Moyenne des notes :</strong>
+                                    <span th:text="${#numbers.formatDecimal(moyenneNote, 1, 1)}">0.0</span> / 5
+                                </div>
+                                <div class="mb-3">
+                                    <form th:action="@{/livres/{id}/noter(id=${livre.idLivre})}" method="post" class="row g-2 align-items-center">
+                                        <div class="col-auto">
+                                            <label for="note" class="col-form-label">Note :</label>
+                                        </div>
+                                        <div class="col-auto">
+                                            <select id="note" name="note" class="form-select" required>
+                                                <option value="">Choisir...</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <input type="text" name="texte" class="form-control" placeholder="Votre avis (optionnel)" maxlength="1000">
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-success">Noter</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div>
+                                    <h6>Commentaires :</h6>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" th:each="commentaire : ${commentaires}">
+                                            <span class="badge bg-primary me-2" th:text="${commentaire.note}">5</span>
+                                            <span th:text="${commentaire.texte}">Super livre !</span>
+                                            <span class="text-muted ms-2" th:text="${#temporals.format(commentaire.date, 'dd/MM/yyyy')}">01/01/2025</span>
+                                        </li>
+                                        <li class="list-group-item text-muted" th:if="${#lists.isEmpty(commentaires)}">Aucun commentaire pour ce livre.</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
