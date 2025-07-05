@@ -34,6 +34,16 @@ public class Adherent {
     @Column(name = "mot_de_passe")
     private String motDePasse;
 
+    // Nouveaux champs
+    @Column(name = "quota_prolongement")
+    private Integer quotaProlongement = 3; // Valeur par défaut
+
+    @Column(name = "date_renouvellement_quota")
+    private LocalDate dateRenouvellementQuota;
+
+    @Column(name = "demandes_prolongement_utilisees")
+    private Integer demandesProlongementUtilisees = 0;
+
     // Getters et setters
     public Long getIdAdherent() { return idAdherent; }
     public void setIdAdherent(Long idAdherent) { this.idAdherent = idAdherent; }
@@ -75,4 +85,14 @@ public class Adherent {
     public void setDateExpiration(LocalDate dateExpiration) { this.dateExpiration = dateExpiration; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    // Getters et setters pour le quota de prolongement
+    public Integer getQuotaProlongement() { return quotaProlongement; }
+    public void setQuotaProlongement(Integer quotaProlongement) { this.quotaProlongement = quotaProlongement; }
+
+    public LocalDate getDateRenouvellementQuota() { return dateRenouvellementQuota; }
+    public void setDateRenouvellementQuota(LocalDate dateRenouvellementQuota) { this.dateRenouvellementQuota = dateRenouvellementQuota; }
+
+    public Integer getDemandesProlongementUtilisees() { return demandesProlongementUtilisees; }
+    public void setDemandesProlongementUtilisees(Integer demandesProlongementUtilisees) { this.demandesProlongementUtilisees = demandesProlongementUtilisees; }
 } 

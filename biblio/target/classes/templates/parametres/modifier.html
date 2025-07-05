@@ -15,93 +15,92 @@
                     <div class="card-header">
                         <h4 class="card-title mb-0">
                             <i class="fas fa-edit me-2"></i>
-                            Modifier un paramètre
+                            Modifier les paramètres pour <span th:text="${parametre.typeAdherent}" class="text-info">Type d'adhérent</span>
                         </h4>
                     </div>
                     <div class="card-body">
                         <form th:action="@{/parametres/{id}/modifier(id=${parametre.idParametre})}" th:object="${parametre}" method="post">
                             <div class="row">
                                 <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-person-badge"></i> Configuration de base
+                                    </h5>
+                                    
                                     <div class="mb-3">
-                                        <label for="nom" class="form-label">Nom *</label>
-                                        <input type="text" class="form-control" id="nom" th:field="*{nom}" required>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}"></div>
+                                        <label for="typeAdherent" class="form-label">Type d'adhérent *</label>
+                                        <input type="text" class="form-control" id="typeAdherent" th:field="*{typeAdherent}" readonly>
+                                        <div class="form-text">Type d'adhérent (non modifiable)</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dureePret" class="form-label">Durée de prêt (jours) *</label>
+                                        <input type="number" class="form-control" id="dureePret" th:field="*{dureePret}" min="1" max="365" required>
+                                        <div class="form-text">Nombre de jours autorisés pour un prêt</div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dureePret')}" th:errors="*{dureePret}"></div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="quotaMax" class="form-label">Quota maximum *</label>
+                                        <input type="number" class="form-control" id="quotaMax" th:field="*{quotaMax}" min="1" max="20" required>
+                                        <div class="form-text">Nombre maximum de livres empruntables simultanément</div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('quotaMax')}" th:errors="*{quotaMax}"></div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="quotaProlongement" class="form-label">Quota de prolongement *</label>
+                                        <input type="number" class="form-control" id="quotaProlongement" th:field="*{quotaProlongement}" min="0" max="10" required>
+                                        <div class="form-text">Nombre de demandes de prolongement autorisées par mois (0 = illimité)</div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('quotaProlongement')}" th:errors="*{quotaProlongement}"></div>
                                     </div>
                                 </div>
+                                
                                 <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-exclamation-triangle"></i> Restrictions et pénalités
+                                    </h5>
+                                    
                                     <div class="mb-3">
-                                        <label for="categorie" class="form-label">Catégorie *</label>
-                                        <select class="form-select" id="categorie" th:field="*{categorie}" required>
-                                            <option value="">Sélectionner...</option>
-                                            <option value="systeme">Système</option>
-                                            <option value="pret">Prêt</option>
-                                            <option value="reservation">Réservation</option>
-                                            <option value="penalite">Pénalité</option>
-                                            <option value="notification">Notification</option>
-                                            <option value="securite">Sécurité</option>
-                                            <option value="interface">Interface</option>
-                                            <option value="autre">Autre</option>
-                                        </select>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('categorie')}" th:errors="*{categorie}"></div>
+                                        <label for="ageMinimum" class="form-label">Âge minimum *</label>
+                                        <input type="number" class="form-control" id="ageMinimum" th:field="*{ageMinimum}" min="0" max="120" required>
+                                        <div class="form-text">Âge minimum requis pour l'inscription</div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('ageMinimum')}" th:errors="*{ageMinimum}"></div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="penaliteParJour" class="form-label">Pénalité par jour (€) *</label>
+                                        <input type="number" class="form-control" id="penaliteParJour" th:field="*{penaliteParJour}" min="0" max="10" step="0.01" required>
+                                        <div class="form-text">Montant de la pénalité par jour de retard</div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('penaliteParJour')}" th:errors="*{penaliteParJour}"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="valeur" class="form-label">Valeur *</label>
-                                        <input type="text" class="form-control" id="valeur" th:field="*{valeur}" required>
-                                        <div class="form-text">Entrez la valeur du paramètre selon son type</div>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('valeur')}" th:errors="*{valeur}"></div>
+                            <!-- Conseils de configuration -->
+                            <div class="alert alert-info mt-4">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Conseils de configuration :</strong>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <strong>Étudiants :</strong>
+                                        <ul class="mb-0">
+                                            <li>Durée : 21-30 jours</li>
+                                            <li>Quota : 5-8 livres</li>
+                                            <li>Prolongement : 3-5 demandes/mois</li>
+                                            <li>Âge : 16-18 ans</li>
+                                        </ul>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="type" class="form-label">Type *</label>
-                                        <select class="form-select" id="type" th:field="*{type}" required>
-                                            <option value="">Sélectionner...</option>
-                                            <option value="string">Texte</option>
-                                            <option value="number">Nombre</option>
-                                            <option value="boolean">Booléen</option>
-                                            <option value="date">Date</option>
-                                        </select>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="actif" th:field="*{actif}">
-                                            <label class="form-check-label" for="actif">
-                                                Paramètre actif
-                                            </label>
-                                        </div>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('actif')}" th:errors="*{actif}"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="dateModification" class="form-label">Date de modification</label>
-                                        <input type="datetime-local" class="form-control" id="dateModification" th:field="*{dateModification}">
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dateModification')}" th:errors="*{dateModification}"></div>
+                                    <div class="col-md-6">
+                                        <strong>Enseignants :</strong>
+                                        <ul class="mb-0">
+                                            <li>Durée : 30-60 jours</li>
+                                            <li>Quota : 10-15 livres</li>
+                                            <li>Prolongement : 5-8 demandes/mois</li>
+                                            <li>Âge : 18+ ans</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <label for="description" class="form-label">Description</label>
-                                        <textarea class="form-control" id="description" th:field="*{description}" rows="3" placeholder="Description du paramètre..."></textarea>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
-                                    </div>
-                                </div>
-                            </div>
-
+                            
                             <div class="d-flex justify-content-between">
                                 <a href="/parametres" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>

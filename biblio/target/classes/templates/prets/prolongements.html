@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Demandes de Prolongement</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1><i class="bi bi-calendar-plus text-info"></i> Demandes de Prolongement</h1>
+            <div th:if="${param.success == 'valide'}" class="alert alert-success">Demande validée !</div>
+            <div th:if="${param.success == 'refuse'}" class="alert alert-warning">Demande refusée.</div>
+            <div th:if="${param.error == 'quota_depasse'}" class="alert alert-danger">Demande refusée : quota de prolongement dépassé.</div>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-list"></i> Liste des demandes</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(demandes)}" class="text-center py-5">
+                        <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                        <h4 class="text-muted mt-3">Aucune demande de prolongement</h4>
+                    </div>
+                    <div th:if="${!#lists.isEmpty(demandes)}" class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>Adhérent</th>
+                                <th>Livre</th>
+                                <th>Date demande</th>
+                                <th>Nouvelle date souhaitée</th>
+                                <th>État</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="demande : ${demandes}">
+                                <td>
+                                    <div th:text="${demande.pret.adherent.nom + ' ' + demande.pret.adherent.prenom}">Adhérent</div>
+                                    <small class="text-muted" th:text="'Type: ' + ${demande.pret.adherent.type} + ' | Quota utilisé: ' + ${demande.pret.adherent.demandesProlongementUtilisees}">Type: étudiant | Quota utilisé: 0</small>
+                                </td>
+                                <td th:text="${demande.pret.exemplaire.livre.titre}">Livre</td>
+                                <td th:text="${#temporals.format(demande.dateDemande, 'dd/MM/yyyy')}">01/01/2025</td>
+                                <td th:text="${#temporals.format(demande.nouvelleDateRendu, 'dd/MM/yyyy')}">15/01/2025</td>
+                                <td>
+                                    <span th:if="${demande.etat == 'valide'}" class="badge bg-success">Validée</span>
+                                    <span th:if="${demande.etat == 'refuse'}" class="badge bg-danger">Refusée</span>
+                                    <span th:if="${demande.etat == null || demande.etat == 'en_attente'}" class="badge bg-warning text-dark">En attente</span>
+                                </td>
+                                <td>
+                                    <form th:if="${demande.etat == null || demande.etat == 'en_attente'}" th:action="@{/prolongements/{id}/valider(id=${demande.idProlongement})}" method="post" class="d-inline-flex align-items-center gap-2">
+                                        <select name="mode" class="form-select form-select-sm" style="width: 120px;">
+                                            <option value="manuel">Mode manuel</option>
+                                            <option value="automatique">Mode automatique</option>
+                                        </select>
+                                        <input type="number" name="nbJours" min="1" max="30" value="7" class="form-control form-control-sm" style="width: 80px;" required>
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Valider">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                    <form th:if="${demande.etat == null || demande.etat == 'en_attente'}" th:action="@{/prolongements/{id}/refuser(id=${demande.idProlongement})}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Refuser">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="/accueil" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour au Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

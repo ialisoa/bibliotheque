@@ -14,6 +14,7 @@ public class Parametre {
     private Integer quotaMax;
     private Integer ageMinimum;
     private BigDecimal penaliteParJour;
+    private Integer quotaProlongement;
 
     // Getters et setters
     public Long getIdParametre() { return idParametre; }
@@ -28,4 +29,6 @@ public class Parametre {
     public void setAgeMinimum(Integer ageMinimum) { this.ageMinimum = ageMinimum; }
     public BigDecimal getPenaliteParJour() { return penaliteParJour; }
     public void setPenaliteParJour(BigDecimal penaliteParJour) { this.penaliteParJour = penaliteParJour; }
+    public Integer getQuotaProlongement() { return quotaProlongement; }
+    public void setQuotaProlongement(Integer quotaProlongement) { this.quotaProlongement = quotaProlongement; }
 }
