@@ -30,7 +30,7 @@
                             <div class="col-md-4 text-end">
                                 <span th:if="${pret.dateRenduReelle == null}" class="badge bg-warning fs-6">En cours</span>
                                 <span th:if="${pret.dateRenduReelle != null}" class="badge bg-success fs-6">Retourné</span>
-                                <span th:if="${pret.dateRenduReelle == null && pret.dateRenduPrevue.isBefore(#temporals.createToday())}" class="badge bg-danger fs-6">En retard</span>
+                                <span th:if="${pret.dateRenduReelle == null and pret.dateRenduPrevue.isBefore(#temporals.createToday())}" class="badge bg-danger fs-6">En retard</span>
                             </div>
                         </div>
 

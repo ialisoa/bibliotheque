@@ -4,14 +4,17 @@ com\biblio\controller\ParametreController.class
 com\biblio\controller\PenaliteController.class
 com\biblio\model\ProlongementPret.class
 com\biblio\repository\JourFerieRepository.class
+com\biblio\controller\ProlongementPretController.class
 com\biblio\service\CustomUserDetailsService.class
 com\biblio\repository\InscriptionRepository.class
 com\biblio\model\Administrateur.class
 com\biblio\controller\ExemplaireController.class
 com\biblio\controller\ReservationController.class
 com\biblio\service\LivreService.class
+com\biblio\controller\JourFerieController.class
 com\biblio\model\Penalite.class
 com\biblio\repository\StatutRepository.class
+com\biblio\controller\CompteController.class
 com\biblio\model\Pret.class
 com\biblio\controller\AccueilController.class
 com\biblio\repository\ProlongementPretRepository.class

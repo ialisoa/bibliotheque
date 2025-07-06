@@ -72,6 +72,10 @@ public class AdherentController {
                 adherent.setStatut("actif");
             }
 
+            // S'assurer que les champs de connexion restent vides pour permettre à l'adhérent de créer son compte
+            adherent.setLogin(null);
+            adherent.setMotDePasse(null);
+
             adherentRepository.save(adherent);
             redirectAttributes.addFlashAttribute("success", "Adhérent ajouté avec succès !");
             return "redirect:/adherents?success=true";

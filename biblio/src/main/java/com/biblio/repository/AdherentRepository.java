@@ -14,4 +14,5 @@ public interface AdherentRepository extends JpaRepository<Adherent, Long> {
     long countByStatut(String statut);
     List<Adherent> findByEmailContainingIgnoreCase(String email);
     List<Adherent> findByNomContainingIgnoreCaseAndEmailContainingIgnoreCase(String nom, String email);
+    Adherent findByNomAndPrenomAndEmail(String nom, String prenom, String email);
 }

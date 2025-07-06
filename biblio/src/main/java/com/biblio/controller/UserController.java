@@ -223,11 +223,13 @@ public class UserController {
             }
             
             Integer quotaProlongement = parametre.getQuotaProlongement();
+            Integer quotaUtilise = adherent.getDemandesProlongementUtilisees();
             
             // Vérifier le quota (0 = illimité)
-            if (quotaProlongement > 0 && adherent.getDemandesProlongementUtilisees() >= quotaProlongement) {
-                model.addAttribute("error", "Quota de prolongement dépassé. Votre quota sera renouvelé le mois prochain.");
-                return "redirect:/user/prets?error=quota_depasse";
+            if (quotaProlongement > 0 && quotaUtilise >= quotaProlongement) {
+                String message = String.format("Vous avez épuisé tout votre quota de prolongement du mois (%d/%d demandes). Vous devez attendre le mois prochain pour le renouveler.", 
+                    quotaUtilise, quotaProlongement);
+                return "redirect:/user/prets?error=quota_depasse&message=" + message;
             }
             
             // Créer la demande de prolongement
@@ -238,7 +240,9 @@ public class UserController {
             demande.setEtat("en_attente");
             prolongementPretRepository.save(demande);
             
-            return "redirect:/user/prets?success=prolongement_demande";
+            String message = String.format("Demande de prolongement envoyée avec succès ! Quota utilisé : %d/%d", 
+                quotaUtilise + 1, quotaProlongement);
+            return "redirect:/user/prets?success=prolongement_demande&message=" + message;
         } catch (Exception e) {
             return "redirect:/user/prets?error=demande_echoue";
         }
