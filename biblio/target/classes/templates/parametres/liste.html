@@ -81,6 +81,14 @@
                                                 <div class="fw-bold text-danger" th:text="${parametre.penaliteParJour + ' €'}">0.50 €</div>
                                             </div>
                                         </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <small class="text-muted">Quota prolongement:</small>
+                                                <div class="fw-bold text-info" th:if="${parametre.quotaProlongement == 0}" th:text="'Illimité'">Illimité</div>
+                                                <div class="fw-bold text-info" th:if="${parametre.quotaProlongement > 0}" th:text="${parametre.quotaProlongement + ' demandes/mois'}">3 demandes/mois</div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="card-footer bg-light">
                                         <div class="btn-group w-100" role="group">

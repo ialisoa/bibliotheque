@@ -4,12 +4,14 @@ import com.biblio.model.Adherent;
 import com.biblio.model.Penalite;
 import com.biblio.model.Pret;
 import com.biblio.model.Reservation;
+import com.biblio.model.Parametre;
 import com.biblio.repository.AdherentRepository;
 import com.biblio.repository.PenaliteRepository;
 import com.biblio.repository.PretRepository;
 import com.biblio.repository.ReservationRepository;
 import com.biblio.repository.CommentaireRepository;
 import com.biblio.repository.LivreRepository;
+import com.biblio.repository.ParametreRepository;
 import com.biblio.model.Livre;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +21,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.HashMap;
+import com.biblio.model.ProlongementPret;
+import com.biblio.repository.ProlongementPretRepository;
 
 @Controller
 @RequestMapping("/user")
@@ -49,6 +55,12 @@ public class UserController {
     
     @Autowired
     private LivreRepository livreRepository;
+    
+    @Autowired
+    private ProlongementPretRepository prolongementPretRepository;
+    
+    @Autowired
+    private ParametreRepository parametreRepository;
     
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -196,5 +208,39 @@ public class UserController {
         model.addAttribute("penalites", penalites);
         
         return "user/penalites";
+    }
+
+    @PostMapping("/prets/{id}/demander-prolongement")
+    public String demanderProlongement(@PathVariable Long id, Model model) {
+        try {
+            Pret pret = pretRepository.findById(id).orElseThrow();
+            Adherent adherent = pret.getAdherent();
+            
+            // Récupérer les paramètres selon le type d'adhérent
+            Parametre parametre = parametreRepository.findByTypeAdherent(adherent.getType());
+            if (parametre == null) {
+                return "redirect:/user/prets?error=parametre_manquant";
+            }
+            
+            Integer quotaProlongement = parametre.getQuotaProlongement();
+            
+            // Vérifier le quota (0 = illimité)
+            if (quotaProlongement > 0 && adherent.getDemandesProlongementUtilisees() >= quotaProlongement) {
+                model.addAttribute("error", "Quota de prolongement dépassé. Votre quota sera renouvelé le mois prochain.");
+                return "redirect:/user/prets?error=quota_depasse";
+            }
+            
+            // Créer la demande de prolongement
+            ProlongementPret demande = new ProlongementPret();
+            demande.setPret(pret);
+            demande.setDateDemande(LocalDate.now());
+            demande.setNouvelleDateRendu(pret.getDateRenduPrevue().plusDays(14)); // 14 jours par défaut
+            demande.setEtat("en_attente");
+            prolongementPretRepository.save(demande);
+            
+            return "redirect:/user/prets?success=prolongement_demande";
+        } catch (Exception e) {
+            return "redirect:/user/prets?error=demande_echoue";
+        }
     }
 } 
