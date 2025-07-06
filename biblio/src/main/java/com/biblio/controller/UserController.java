@@ -153,6 +153,15 @@ public class UserController {
         }
         model.addAttribute("daysBetween", daysBetween);
         
+        // Ajouter des informations sur l'expiration pour les notifications
+        boolean expirationProche = daysBetween <= 30 && daysBetween > 0;
+        boolean expirationImminente = daysBetween <= 7 && daysBetween > 0;
+        boolean abonnementExpire = daysBetween < 0;
+        
+        model.addAttribute("expirationProche", expirationProche);
+        model.addAttribute("expirationImminente", expirationImminente);
+        model.addAttribute("abonnementExpire", abonnementExpire);
+        
         return "user/profile";
     }
     
