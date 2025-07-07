@@ -15,4 +15,8 @@ public interface AdherentRepository extends JpaRepository<Adherent, Long> {
     List<Adherent> findByEmailContainingIgnoreCase(String email);
     List<Adherent> findByNomContainingIgnoreCaseAndEmailContainingIgnoreCase(String nom, String email);
     Adherent findByNomAndPrenomAndEmail(String nom, String prenom, String email);
+    
+    // Méthodes pour le renouvellement d'abonnement
+    List<Adherent> findByDateExpirationBetween(java.time.LocalDate dateDebut, java.time.LocalDate dateFin);
+    List<Adherent> findByDateExpirationBeforeAndStatutEquals(java.time.LocalDate date, String statut);
 }

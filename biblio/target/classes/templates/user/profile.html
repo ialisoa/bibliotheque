@@ -50,6 +50,37 @@
             </div>
         </div>
 
+        <!-- Notifications d'expiration -->
+        <div th:if="${expirationProche or expirationImminente or abonnementExpire}" class="row mb-4">
+            <div class="col-12">
+                <div th:if="${abonnementExpire}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Attention !</strong> Votre abonnement a expiré le 
+                    <span th:text="${#temporals.format(adherent.dateExpiration, 'dd/MM/yyyy')}">01/01/2025</span>. 
+                    Veuillez contacter l'administration pour le renouveler.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${expirationImminente and !abonnementExpire}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Expiration imminente !</strong> Votre abonnement expire dans 
+                    <span th:text="${daysBetween}">7</span> jours (le 
+                    <span th:text="${#temporals.format(adherent.dateExpiration, 'dd/MM/yyyy')}">01/01/2025</span>). 
+                    Il sera renouvelé automatiquement.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${expirationProche and !expirationImminente and !abonnementExpire}" class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Rappel :</strong> Votre abonnement expire le 
+                    <span th:text="${#temporals.format(adherent.dateExpiration, 'dd/MM/yyyy')}">01/01/2025</span> 
+                    (dans <span th:text="${daysBetween}">30</span> jours). 
+                    Il sera renouvelé automatiquement.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <!-- Informations personnelles -->
             <div class="col-md-6 mb-4">
