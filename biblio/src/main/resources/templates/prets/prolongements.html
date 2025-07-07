@@ -10,9 +10,51 @@
     <div class="row">
         <div class="col-12">
             <h1><i class="bi bi-calendar-plus text-info"></i> Demandes de Prolongement</h1>
-            <div th:if="${param.success == 'valide'}" class="alert alert-success">Demande validée !</div>
-            <div th:if="${param.success == 'refuse'}" class="alert alert-warning">Demande refusée.</div>
-            <div th:if="${param.error == 'quota_depasse'}" class="alert alert-danger">Demande refusée : quota de prolongement dépassé.</div>
+            
+            <!-- Messages de succès/erreur -->
+            <div th:if="${param.success == 'valide'}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <strong>Demande validée !</strong>
+                <div class="mt-2">
+                    <span th:if="${param.jours}" th:text="'Prolongation de ' + ${param.jours} + ' jours appliquée.'"></span>
+                    <br>
+                    <span th:if="${param.debutPret}" th:text="'Nouveau prêt créé à partir du : ' + ${param.debutPret}"></span>
+                    <br>
+                    <span th:if="${param.nouvelleDate}" th:text="'Nouvelle date de retour : ' + ${param.nouvelleDate}"></span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${param.success == 'refuse'}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <strong>Demande refusée.</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${param.success == 'supprime'}" class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="bi bi-trash"></i>
+                <strong>Demande supprimée avec succès.</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${param.error == 'quota_depasse'}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Demande refusée :</strong> quota de prolongement dépassé.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${param.error == 'parametre_manquant'}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Erreur :</strong> paramètres manquants pour le type d'adhérent.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${param.error == 'suppression_echoue'}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Erreur :</strong> Impossible de supprimer la demande de prolongement.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
             <div class="card mt-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-list"></i> Liste des demandes</h5>
@@ -29,6 +71,7 @@
                                 <th>Adhérent</th>
                                 <th>Livre</th>
                                 <th>Date demande</th>
+                                <th>Date retour actuelle</th>
                                 <th>Nouvelle date souhaitée</th>
                                 <th>État</th>
                                 <th>Actions</th>
@@ -42,7 +85,14 @@
                                 </td>
                                 <td th:text="${demande.pret.exemplaire.livre.titre}">Livre</td>
                                 <td th:text="${#temporals.format(demande.dateDemande, 'dd/MM/yyyy')}">01/01/2025</td>
-                                <td th:text="${#temporals.format(demande.nouvelleDateRendu, 'dd/MM/yyyy')}">15/01/2025</td>
+                                <td>
+                                    <span th:text="${#temporals.format(demande.pret.dateRenduPrevue, 'dd/MM/yyyy')}" class="text-primary">15/01/2025</span>
+                                </td>
+                                <td>
+                                    <span th:if="${demande.etat == 'valide'}" th:text="${#temporals.format(demande.nouvelleDateRendu, 'dd/MM/yyyy')}" class="text-success fw-bold"></span>
+                                    <span th:if="${demande.etat == 'refuse'}" th:text="${#temporals.format(demande.nouvelleDateRendu, 'dd/MM/yyyy')}" class="text-danger"></span>
+                                    <span th:if="${demande.etat == null || demande.etat == 'en_attente'}" th:text="${#temporals.format(demande.nouvelleDateRendu, 'dd/MM/yyyy')}" class="text-warning"></span>
+                                </td>
                                 <td>
                                     <span th:if="${demande.etat == 'valide'}" class="badge bg-success">Validée</span>
                                     <span th:if="${demande.etat == 'refuse'}" class="badge bg-danger">Refusée</span>
@@ -62,6 +112,20 @@
                                     <form th:if="${demande.etat == null || demande.etat == 'en_attente'}" th:action="@{/prolongements/{id}/refuser(id=${demande.idProlongement})}" method="post" style="display:inline;">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Refuser">
                                             <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </form>
+                                    <div th:if="${demande.etat == 'valide'}" class="text-success">
+                                        <i class="bi bi-check-circle"></i> Prolongé
+                                    </div>
+                                    <div th:if="${demande.etat == 'refuse'}" class="text-danger">
+                                        <i class="bi bi-x-circle"></i> Refusé
+                                    </div>
+                                    
+                                    <!-- Bouton supprimer pour toutes les demandes -->
+                                    <form th:action="@{/prolongements/{id}/supprimer(id=${demande.idProlongement})}" method="post" style="display:inline;" class="ms-2">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Supprimer" 
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette demande de prolongement ?')">
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </td>

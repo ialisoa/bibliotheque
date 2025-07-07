@@ -56,8 +56,8 @@ public class ProlongementPretController {
                                 @RequestParam(required = false) Integer nbJours,
                                 @RequestParam(required = false) String mode) {
         ProlongementPret demande = prolongementPretRepository.findById(id).orElseThrow();
-        Pret pret = demande.getPret();
-        Adherent adherent = pret.getAdherent();
+        Pret pretOriginal = demande.getPret();
+        Adherent adherent = pretOriginal.getAdherent();
         
         // Récupérer les paramètres selon le type d'adhérent
         Parametre parametre = parametreRepository.findByTypeAdherent(adherent.getType());
@@ -70,7 +70,7 @@ public class ProlongementPretController {
         // Vérifier le quota (0 = illimité)
         if (quotaProlongement > 0 && adherent.getDemandesProlongementUtilisees() >= quotaProlongement) {
             demande.setEtat("refuse");
-            demande.setNouvelleDateRendu(pret.getDateRenduPrevue());
+            demande.setNouvelleDateRendu(pretOriginal.getDateRenduPrevue());
             prolongementPretRepository.save(demande);
             return "redirect:/prolongements?error=quota_depasse";
         }
@@ -85,13 +85,28 @@ public class ProlongementPretController {
             joursProlongation = nbJours != null ? nbJours : 7;
         }
         
-        // Appliquer la prolongation
-        pret.setDateRenduPrevue(pret.getDateRenduPrevue().plusDays(joursProlongation));
-        pretRepository.save(pret);
+        // Calculer les dates pour le nouveau prêt
+        LocalDate finPretOriginal = pretOriginal.getDateRenduPrevue();
+        LocalDate debutNouveauPret = finPretOriginal; // Le nouveau prêt commence à la fin de l'ancien
+        LocalDate finNouveauPret = debutNouveauPret.plusDays(joursProlongation);
         
-        // Mettre à jour la demande et le quota
+        // Terminer le prêt original (le marquer comme rendu)
+        pretOriginal.setDateRenduReelle(finPretOriginal);
+        pretRepository.save(pretOriginal);
+        
+        // Créer un nouveau prêt pour la prolongation
+        Pret nouveauPret = new Pret();
+        nouveauPret.setAdherent(adherent);
+        nouveauPret.setExemplaire(pretOriginal.getExemplaire());
+        nouveauPret.setDatePret(debutNouveauPret);
+        nouveauPret.setDateRenduPrevue(finNouveauPret);
+        nouveauPret.setType("prolongation");
+        nouveauPret.setStatut(pretOriginal.getStatut()); // Garder le même statut
+        pretRepository.save(nouveauPret);
+        
+        // Mettre à jour la demande de prolongement
         demande.setEtat("valide");
-        demande.setNouvelleDateRendu(pret.getDateRenduPrevue());
+        demande.setNouvelleDateRendu(finNouveauPret);
         prolongementPretRepository.save(demande);
         
         // Incrémenter le quota utilisé seulement si pas illimité
@@ -100,7 +115,7 @@ public class ProlongementPretController {
             adherentRepository.save(adherent);
         }
         
-        return "redirect:/prolongements?success=valide";
+        return "redirect:/prolongements?success=valide&jours=" + joursProlongation + "&nouvelleDate=" + finNouveauPret + "&debutPret=" + debutNouveauPret;
     }
 
     @PostMapping("/{id}/refuser")
@@ -109,5 +124,16 @@ public class ProlongementPretController {
         demande.setEtat("refuse");
         prolongementPretRepository.save(demande);
         return "redirect:/prolongements?success=refuse";
+    }
+
+    @PostMapping("/{id}/supprimer")
+    public String supprimerDemande(@PathVariable Long id) {
+        try {
+            ProlongementPret demande = prolongementPretRepository.findById(id).orElseThrow();
+            prolongementPretRepository.delete(demande);
+            return "redirect:/prolongements?success=supprime";
+        } catch (Exception e) {
+            return "redirect:/prolongements?error=suppression_echoue";
+        }
     }
 } 

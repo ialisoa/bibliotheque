@@ -15,28 +15,69 @@
                 <i class="fas fa-arrow-left me-1"></i>Dashboard
             </a>
         </div>
+        
+        <!-- Informations sur le quota de prolongement -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>Quota de prolongement</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Type d'adhérent :</strong> 
+                        <span th:text="${adherent.type}" class="badge bg-primary">étudiant</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Quota utilisé :</strong> 
+                        <span th:text="${adherent.demandesProlongementUtilisees}" class="text-info">0</span>
+                        <span th:if="${adherent.quotaProlongement > 0}" th:text="'/' + ${adherent.quotaProlongement}">/3</span>
+                        <span th:if="${adherent.quotaProlongement == 0}" class="text-success">(illimité)</span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Vous pouvez demander des prolongements pour vos prêts en cours. 
+                        Le quota se renouvelle chaque mois.
+                    </small>
+                </div>
+            </div>
+        </div>
+        
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <!-- Messages de succès/erreur -->
                 <div th:if="${param.success == 'prolongement_demande'}" class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle"></i>
-                    <span>Demande de prolongement envoyée avec succès !</span>
+                    <strong>Demande de prolongement envoyée avec succès !</strong>
+                    <div th:if="${param.message}" th:text="${param.message}" class="mt-1"></div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                
                 <div th:if="${param.error == 'quota_depasse'}" class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <span>Quota de prolongement dépassé. Votre quota sera renouvelé le mois prochain.</span>
+                    <strong>Quota de prolongement épuisé !</strong>
+                    <div th:if="${param.message}" th:text="${param.message}" class="mt-1"></div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                
+                <div th:if="${param.error == 'parametre_manquant'}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Erreur :</strong> Paramètres manquants pour votre type d'adhérent. Contactez l'administrateur.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
                 <div th:if="${param.error == 'demande_echoue'}" class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <span>Erreur lors de l'envoi de la demande de prolongement.</span>
+                    <strong>Erreur :</strong> Erreur lors de l'envoi de la demande de prolongement.
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                
                 <div th:if="${prets.isEmpty()}" class="text-center py-5">
                     <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
                     <p class="text-muted">Aucun prêt trouvé</p>
                 </div>
+                
                 <div th:if="${!prets.isEmpty()}">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
@@ -45,6 +86,7 @@
                                 <th>Date de prêt</th>
                                 <th>Date retour prévue</th>
                                 <th>Date retour réelle</th>
+                                <th>Type de prêt</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
@@ -59,15 +101,22 @@
                                 <td th:text="${#temporals.format(pret.dateRenduPrevue, 'dd/MM/yyyy')}">01/01/2025</td>
                                 <td th:text="${pret.dateRenduReelle != null ? #temporals.format(pret.dateRenduReelle, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td>
+                                    <span th:if="${pret.type == 'prolongation'}" class="badge bg-warning text-dark">Prolongation</span>
+                                    <span th:if="${pret.type != 'prolongation'}" class="badge bg-primary">Normal</span>
+                                </td>
+                                <td>
                                     <span th:if="${pret.dateRenduReelle == null}" class="badge bg-success">En cours</span>
                                     <span th:if="${pret.dateRenduReelle != null}" class="badge bg-secondary">Terminé</span>
                                 </td>
                                 <td>
-                                    <form th:if="${pret.dateRenduReelle == null}" th:action="@{/user/prets/{id}/demander-prolongement(id=${pret.idPret})}" method="post" style="display:inline;">
+                                    <form th:if="${pret.dateRenduReelle == null and pret.type != 'prolongation'}" th:action="@{/user/prets/{id}/demander-prolongation(id=${pret.idPret})}" method="post" style="display:inline;">
                                         <button type="submit" class="btn btn-sm btn-outline-info" title="Demander un prolongement">
                                             <i class="fas fa-calendar-plus"></i> Prolonger
                                         </button>
                                     </form>
+                                    <span th:if="${pret.type == 'prolongation'}" class="text-success">
+                                        <i class="fas fa-check-circle"></i> Prolongé
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
