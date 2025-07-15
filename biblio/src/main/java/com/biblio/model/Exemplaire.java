@@ -30,4 +30,17 @@ public class Exemplaire {
     public void setEtat(String etat) { this.etat = etat; }
     public String getStatut() { return statut; }
     public void setStatut(String statut) { this.statut = statut; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Exemplaire that = (Exemplaire) o;
+        return idExemplaire != null && idExemplaire.equals(that.idExemplaire);
+    }
+
+    @Override
+    public int hashCode() {
+        return idExemplaire != null ? idExemplaire.hashCode() : 0;
+    }
 } 

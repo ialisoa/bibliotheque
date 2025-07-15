@@ -33,6 +33,7 @@ import com.biblio.model.ProlongementPret;
 import com.biblio.repository.ProlongementPretRepository;
 import com.biblio.repository.ExemplaireRepository;
 import com.biblio.repository.StatutRepository;
+import com.biblio.model.Statut;
 
 @Controller
 @RequestMapping("/user")
@@ -185,12 +186,27 @@ public class UserController {
         
         List<Pret> prets = pretRepository.findByAdherentOrderByDatePretDesc(adherent);
         
+        // Associer à chaque prêt sa demande de prolongement la plus récente (si existe)
+        java.util.Map<Long, com.biblio.model.ProlongementPret> prolongements = new java.util.HashMap<>();
+        for (Pret pret : prets) {
+            com.biblio.model.ProlongementPret prolongement = prolongementPretRepository.findTopByPretOrderByDateDemandeDesc(pret);
+            if (prolongement != null) {
+                prolongements.put(pret.getIdPret(), prolongement);
+            }
+        }
         model.addAttribute("adherent", adherent);
         model.addAttribute("prets", prets);
-        
+        model.addAttribute("prolongements", prolongements);
         // Ajout des exemplaires disponibles pour la modal
         model.addAttribute("exemplairesDisponibles", exemplaireRepository.findByStatut("disponible"));
-        
+        // Ajout du calcul d'abonnementExpire
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate expiration = adherent.getDateExpiration();
+        boolean abonnementExpire = false;
+        if (expiration != null) {
+            abonnementExpire = java.time.temporal.ChronoUnit.DAYS.between(today, expiration) < 0;
+        }
+        model.addAttribute("abonnementExpire", abonnementExpire);
         return "user/prets";
     }
     
@@ -234,40 +250,36 @@ public class UserController {
     }
 
     @PostMapping("/prets/{id}/demander-prolongement")
-    public String demanderProlongement(@PathVariable Long id, Model model) {
+    public String demanderProlongement(@PathVariable Long id, @org.springframework.web.bind.annotation.RequestParam("nouvelleDateRendu") String nouvelleDateRenduStr, Model model) {
         try {
             Pret pret = pretRepository.findById(id).orElseThrow();
             Adherent adherent = pret.getAdherent();
-            
             // Récupérer les paramètres selon le type d'adhérent
             Parametre parametre = parametreRepository.findByTypeAdherent(adherent.getType());
             if (parametre == null) {
                 return "redirect:/user/prets?error=parametre_manquant";
             }
-            
-            Integer quotaProlongement = parametre.getQuotaProlongement();
-            Integer quotaUtilise = adherent.getDemandesProlongementUtilisees();
-            
-            // Vérifier le quota (0 = illimité)
-            if (quotaProlongement > 0 && quotaUtilise >= quotaProlongement) {
-                String message = String.format("Vous avez épuisé tout votre quota de prolongement du mois (%d/%d demandes). Vous devez attendre le mois prochain pour le renouveler.", 
-                    quotaUtilise, quotaProlongement);
-                return "redirect:/user/prets?error=quota_depasse&message=" + message;
+            Integer quota = adherent.getQuotaProlongement();
+            Integer utilise = adherent.getDemandesProlongementUtilisees();
+            if (utilise != null && quota != null && utilise >= quota) {
+                return "redirect:/user/prets?error=quota";
             }
-            
-            // Créer la demande de prolongement
-            ProlongementPret demande = new ProlongementPret();
-            demande.setPret(pret);
-            demande.setDateDemande(LocalDate.now());
-            demande.setNouvelleDateRendu(pret.getDateRenduPrevue().plusDays(14)); // 14 jours par défaut
-            demande.setEtat("en_attente");
-            prolongementPretRepository.save(demande);
-            
-            String message = String.format("Demande de prolongement envoyée avec succès ! Quota utilisé : %d/%d", 
-                quotaUtilise + 1, quotaProlongement);
-            return "redirect:/user/prets?success=prolongement_demande&message=" + message;
+            // Date de début du prolongement = date de fin prévue du prêt de base
+            LocalDate dateDebutProlongement = pret.getDateRenduPrevue();
+            LocalDate nouvelleDateRendu = LocalDate.parse(nouvelleDateRenduStr);
+            // Création du prolongement (type = prolongation, statut = en_attente)
+            Pret prolongement = new Pret();
+            prolongement.setAdherent(adherent);
+            prolongement.setExemplaire(pret.getExemplaire());
+            prolongement.setType("prolongation");
+            Statut statutEnAttente = statutRepository.findByNom("en_attente");
+            prolongement.setStatut(statutEnAttente);
+            prolongement.setDatePret(dateDebutProlongement);
+            prolongement.setDateRenduPrevue(nouvelleDateRendu);
+            pretRepository.save(prolongement);
+            return "redirect:/user/prets?success=prolongement";
         } catch (Exception e) {
-            return "redirect:/user/prets?error=demande_echoue";
+            return "redirect:/user/prets?error=prolongement";
         }
     }
 
@@ -299,8 +311,10 @@ public class UserController {
             pret.setDatePret(datePret);
             pret.setDateRenduPrevue(dateRenduPrevue);
             pret.setType("domicile");
+            // Statut 'en_attente' pour validation admin
             pret.setStatut(statutRepository.findByNom("en_attente"));
             pretRepository.save(pret);
+            pretRepository.flush();
             return "redirect:/user/prets?success=demande_envoyee";
         } catch (Exception e) {
             return "redirect:/user/prets?error=demande_echouee";
