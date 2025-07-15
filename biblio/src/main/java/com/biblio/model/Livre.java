@@ -28,6 +28,7 @@ public class Livre {
     private Double prix;
     @Column(columnDefinition = "TEXT")
     private String resume;
+    private String genre;
 
     // Getters et setters
     public Long getIdLivre() { return idLivre; }
@@ -64,4 +65,6 @@ public class Livre {
     public void setPrix(Double prix) { this.prix = prix; }
     public String getResume() { return resume; }
     public void setResume(String resume) { this.resume = resume; }
+    public String getGenre() { return genre; }
+    public void setGenre(String genre) { this.genre = genre; }
 } 

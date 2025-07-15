@@ -11,9 +11,49 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="fas fa-book me-2"></i>Mes Prêts</h2>
-            <a href="/user/dashboard" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Dashboard
-            </a>
+            <div>
+                <a href="/user/dashboard" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Dashboard
+                </a>
+                <!-- Bouton pour ouvrir la modal de demande de prêt -->
+                <button type="button" class="btn btn-success btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#demandePretModal">
+                    <i class="fas fa-plus"></i> Demander un prêt
+                </button>
+            </div>
+        </div>
+        <!-- Modal de demande de prêt -->
+        <div class="modal fade" id="demandePretModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{/user/prets/demander}" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Demander un prêt</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="exemplaireId" class="form-label">Exemplaire disponible</label>
+                                <select class="form-select" id="exemplaireId" name="exemplaireId" required>
+                                    <option value="">Sélectionner...</option>
+                                    <option th:each="ex : ${exemplairesDisponibles}" th:value="${ex.idExemplaire}" th:text="${ex.livre.titre + ' (Ex #' + ex.idExemplaire + ')'}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="datePret" class="form-label">Date de début de prêt</label>
+                                <input type="date" class="form-control" id="datePret" name="datePret" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="dateRenduPrevue" class="form-label">Date de retour prévue</label>
+                                <input type="date" class="form-control" id="dateRenduPrevue" name="dateRenduPrevue" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-success">Envoyer la demande</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
         
         <!-- Informations sur le quota de prolongement -->

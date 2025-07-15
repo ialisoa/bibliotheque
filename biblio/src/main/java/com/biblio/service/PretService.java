@@ -24,7 +24,7 @@ public class PretService {
     public Pret creerPret(Long idAdherent, Long idExemplaire) {
         Exemplaire exemplaire = exemplaireRepository.findById(idExemplaire)
                 .orElseThrow(() -> new RuntimeException("Exemplaire non trouvé"));
-        if (!"disponible".equals(exemplaire.getEtat())) {
+        if (!"disponible".equals(exemplaire.getStatut())) {
             throw new RuntimeException("Exemplaire indisponible");
         }
         Adherent adherent = adherentRepository.findById(idAdherent)
@@ -37,7 +37,7 @@ public class PretService {
         pret.setDateRenduPrevue(LocalDate.now().plusDays(parametre.getDureePret()));
         pret.setStatut(statutRepository.findById(1L).orElse(null)); // 1 = en_cours
         pret.setType("domicile");
-        exemplaire.setEtat("emprunte");
+        exemplaire.setStatut("emprunte");
         exemplaireRepository.save(exemplaire);
         return pretRepository.save(pret);
     }

@@ -11,4 +11,5 @@ public interface ExemplaireRepository extends JpaRepository<Exemplaire, Long> {
     List<Exemplaire> findByStatut(String statut);
     List<Exemplaire> findByLivreTitreContainingIgnoreCase(String titre);
     List<Exemplaire> findByLivreTitreContainingIgnoreCaseAndStatut(String titre, String statut);
+    List<Exemplaire> findByEtatIgnoreCase(String etat);
 } 

@@ -160,4 +160,24 @@ public class ReservationController {
             return "redirect:/reservations?error=delete";
         }
     }
+
+    @PostMapping("/{id}/valider")
+    public String validerReservation(@PathVariable Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+        if (reservation != null && "en_attente".equals(reservation.getEtat())) {
+            reservation.setEtat("disponible");
+            reservationRepository.save(reservation);
+        }
+        return "redirect:/reservations";
+    }
+
+    @PostMapping("/{id}/refuser")
+    public String refuserReservation(@PathVariable Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+        if (reservation != null && "en_attente".equals(reservation.getEtat())) {
+            reservation.setEtat("annulee");
+            reservationRepository.save(reservation);
+        }
+        return "redirect:/reservations";
+    }
 } 

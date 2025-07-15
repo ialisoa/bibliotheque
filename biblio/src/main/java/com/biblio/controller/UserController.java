@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.HashMap;
 import com.biblio.model.ProlongementPret;
 import com.biblio.repository.ProlongementPretRepository;
+import com.biblio.repository.ExemplaireRepository;
+import com.biblio.repository.StatutRepository;
 
 @Controller
 @RequestMapping("/user")
@@ -61,6 +63,12 @@ public class UserController {
     
     @Autowired
     private ParametreRepository parametreRepository;
+    
+    @Autowired
+    private com.biblio.repository.ExemplaireRepository exemplaireRepository;
+    
+    @Autowired
+    private com.biblio.repository.StatutRepository statutRepository;
     
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -180,6 +188,9 @@ public class UserController {
         model.addAttribute("adherent", adherent);
         model.addAttribute("prets", prets);
         
+        // Ajout des exemplaires disponibles pour la modal
+        model.addAttribute("exemplairesDisponibles", exemplaireRepository.findByStatut("disponible"));
+        
         return "user/prets";
     }
     
@@ -197,6 +208,9 @@ public class UserController {
         
         model.addAttribute("adherent", adherent);
         model.addAttribute("reservations", reservations);
+        
+        // Ajout des livres disponibles pour la modal
+        model.addAttribute("livresDisponibles", livreRepository.findByStatutIgnoreCase("disponible"));
         
         return "user/reservations";
     }
@@ -254,6 +268,72 @@ public class UserController {
             return "redirect:/user/prets?success=prolongement_demande&message=" + message;
         } catch (Exception e) {
             return "redirect:/user/prets?error=demande_echoue";
+        }
+    }
+
+    @PostMapping("/prets/demander")
+    public String demanderPret(
+        @org.springframework.web.bind.annotation.RequestParam("exemplaireId") Long exemplaireId,
+        @org.springframework.web.bind.annotation.RequestParam("datePret") String datePretStr,
+        @org.springframework.web.bind.annotation.RequestParam("dateRenduPrevue") String dateRenduPrevueStr
+    ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Adherent adherent = adherentRepository.findByLogin(username)
+            .orElseThrow(() -> new RuntimeException("Adhérent non trouvé"));
+        try {
+            Pret pret = new Pret();
+            pret.setAdherent(adherent);
+            pret.setExemplaire(
+                com.biblio.model.Exemplaire.class.cast(
+                    com.biblio.repository.ExemplaireRepository.class.cast(
+                        org.springframework.beans.factory.BeanFactoryUtils.beanOfTypeIncludingAncestors(
+                            org.springframework.web.context.ContextLoader.getCurrentWebApplicationContext(),
+                            com.biblio.repository.ExemplaireRepository.class
+                        )
+                    ).findById(exemplaireId).orElseThrow(() -> new RuntimeException("Exemplaire non trouvé"))
+                )
+            );
+            java.time.LocalDate datePret = java.time.LocalDate.parse(datePretStr);
+            java.time.LocalDate dateRenduPrevue = java.time.LocalDate.parse(dateRenduPrevueStr);
+            pret.setDatePret(datePret);
+            pret.setDateRenduPrevue(dateRenduPrevue);
+            pret.setType("domicile");
+            pret.setStatut(statutRepository.findByNom("en_attente"));
+            pretRepository.save(pret);
+            return "redirect:/user/prets?success=demande_envoyee";
+        } catch (Exception e) {
+            return "redirect:/user/prets?error=demande_echouee";
+        }
+    }
+
+    @PostMapping("/reservations/demander")
+    public String demanderReservation(
+        @org.springframework.web.bind.annotation.RequestParam("livreId") Long livreId,
+        @org.springframework.web.bind.annotation.RequestParam("dateReservation") String dateReservationStr,
+        @org.springframework.web.bind.annotation.RequestParam("dateFinReservation") String dateFinReservationStr
+    ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Adherent adherent = adherentRepository.findByLogin(username)
+            .orElseThrow(() -> new RuntimeException("Adhérent non trouvé"));
+        try {
+            Reservation reservation = new Reservation();
+            reservation.setAdherent(adherent);
+            reservation.setLivre(
+                com.biblio.model.Livre.class.cast(
+                    livreRepository.findById(livreId).orElseThrow(() -> new RuntimeException("Livre non trouvé"))
+                )
+            );
+            java.time.LocalDate dateReservation = java.time.LocalDate.parse(dateReservationStr);
+            java.time.LocalDate dateFinReservation = java.time.LocalDate.parse(dateFinReservationStr);
+            reservation.setDateReservation(dateReservation);
+            reservation.setDateFinReservation(dateFinReservation);
+            reservation.setEtat("en_attente");
+            reservationRepository.save(reservation);
+            return "redirect:/user/reservations?success=demande_envoyee";
+        } catch (Exception e) {
+            return "redirect:/user/reservations?error=demande_echouee";
         }
     }
 } 

@@ -108,7 +108,7 @@ public class PretController {
             logger.info("Nombre d'adhérents actifs trouvés : {}", adherents.size());
             
             // Récupérer seulement les exemplaires disponibles
-            List<Exemplaire> exemplaires = exemplaireRepository.findByEtat("disponible");
+            List<Exemplaire> exemplaires = exemplaireRepository.findByStatut("disponible");
             logger.info("Nombre d'exemplaires disponibles trouvés : {}", exemplaires.size());
             
             // Si aucun exemplaire disponible, créer des exemplaires pour les livres existants
@@ -121,14 +121,14 @@ public class PretController {
                         Exemplaire exemplaire = new Exemplaire();
                         exemplaire.setNomExemplaire("Exemplaire " + i + " - " + livre.getTitre());
                         exemplaire.setLivre(livre);
-                        exemplaire.setEtat("disponible");
-                        exemplaire.setStatut("actif");
+                        exemplaire.setEtat("bon");
+                        exemplaire.setStatut("disponible");
                         exemplaireRepository.save(exemplaire);
                         logger.info("Exemplaire créé pour le livre: {} - Exemplaire: {}", livre.getTitre(), exemplaire.getNomExemplaire());
                     }
                 }
                 // Récupérer à nouveau les exemplaires disponibles
-                exemplaires = exemplaireRepository.findByEtat("disponible");
+                exemplaires = exemplaireRepository.findByStatut("disponible");
                 logger.info("Nombre d'exemplaires disponibles après création : {}", exemplaires.size());
             }
             
@@ -292,7 +292,7 @@ public class PretController {
             // Mettre à jour l'état de l'exemplaire à "disponible"
             if (pret.getExemplaire() != null) {
                 Exemplaire exemplaire = exemplaireRepository.findById(pret.getExemplaire().getIdExemplaire()).orElseThrow();
-                exemplaire.setEtat("disponible");
+                exemplaire.setStatut("disponible");
                 exemplaireRepository.save(exemplaire);
                 logger.info("État de l'exemplaire {} mis à jour à 'disponible'", exemplaire.getIdExemplaire());
             }
@@ -332,5 +332,27 @@ public class PretController {
             logger.error("Erreur lors de la suppression du prêt: {}", e.getMessage(), e);
             return "redirect:/prets?error=delete";
         }
+    }
+
+    @PostMapping("/{id}/valider")
+    public String validerPret(@PathVariable Long id) {
+        Pret pret = pretRepository.findById(id).orElse(null);
+        if (pret != null && pret.getStatut() != null && "en_attente".equals(pret.getStatut().getNom())) {
+            Statut valide = statutRepository.findByNom("valide");
+            pret.setStatut(valide);
+            pretRepository.save(pret);
+        }
+        return "redirect:/prets";
+    }
+
+    @PostMapping("/{id}/refuser")
+    public String refuserPret(@PathVariable Long id) {
+        Pret pret = pretRepository.findById(id).orElse(null);
+        if (pret != null && pret.getStatut() != null && "en_attente".equals(pret.getStatut().getNom())) {
+            Statut refuse = statutRepository.findByNom("refuse");
+            pret.setStatut(refuse);
+            pretRepository.save(pret);
+        }
+        return "redirect:/prets";
     }
 }

@@ -134,9 +134,12 @@
                                         <td th:text="${#temporals.format(pret.dateRenduPrevue, 'dd/MM/yyyy')}">15/01/2024</td>
                                         <td th:text="${pret.dateRenduReelle != null ? #temporals.format(pret.dateRenduReelle, 'dd/MM/yyyy') : '-'}">-</td>
                                         <td>
-                                            <span th:if="${pret.dateRenduReelle != null}" class="badge bg-success">Retourné</span>
-                                            <span th:if="${pret.dateRenduReelle == null and pret.dateRenduPrevue.isBefore(#temporals.createToday())}" class="badge bg-danger">En retard</span>
-                                            <span th:if="${pret.dateRenduReelle == null and not pret.dateRenduPrevue.isBefore(#temporals.createToday())}" class="badge bg-primary">En cours</span>
+                                            <span th:if="${pret.statut != null and pret.statut.nom == 'en_attente'}" class="badge bg-warning">En attente</span>
+                                            <span th:if="${pret.statut == null or pret.statut.nom != 'en_attente'}">
+                                                <span th:if="${pret.dateRenduReelle != null}" class="badge bg-success">Retourné</span>
+                                                <span th:if="${pret.dateRenduReelle == null and pret.dateRenduPrevue.isBefore(#temporals.createToday())}" class="badge bg-danger">En retard</span>
+                                                <span th:if="${pret.dateRenduReelle == null and not pret.dateRenduPrevue.isBefore(#temporals.createToday())}" class="badge bg-primary">En cours</span>
+                                            </span>
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
@@ -181,6 +184,17 @@
                                                       style="display: inline;">
                                                     <button type="submit" class="btn btn-sm btn-outline-info" title="Prolonger">
                                                         <i class="bi bi-calendar-plus"></i>
+                                                    </button>
+                                                </form>
+                                                <!-- Boutons de validation/refus pour les prêts en attente -->
+                                                <form th:if="${pret.statut != null and pret.statut.nom == 'en_attente'}" th:action="@{/prets/{id}/valider(id=${pret.idPret})}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Valider">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                </form>
+                                                <form th:if="${pret.statut != null and pret.statut.nom == 'en_attente'}" th:action="@{/prets/{id}/refuser(id=${pret.idPret})}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Refuser">
+                                                        <i class="bi bi-x-lg"></i>
                                                     </button>
                                                 </form>
                                                 <button type="button" 

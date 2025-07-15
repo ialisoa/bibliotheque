@@ -118,6 +118,40 @@
                             </div>
                         </div>
 
+                        <div class="row mt-4" th:if="${exemplaires != null && !#lists.isEmpty(exemplaires)}">
+                            <div class="col-12">
+                                <h5>Exemplaires du livre</h5>
+                                <p th:text="'Nombre d\'exemplaires trouvés : ' + ${exemplaires.size()}"></p>
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nom</th>
+                                            <th>État</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="ex : ${exemplaires}">
+                                            <td th:text="${ex.idExemplaire}">1</td>
+                                            <td th:text="${ex.nomExemplaire}">Nom</td>
+                                            <td th:text="${ex.etat}">État</td>
+                                            <td>
+                                                <span th:if="${ex.statut == 'disponible'}" class="badge bg-success">Disponible</span>
+                                                <span th:if="${ex.statut == 'emprunte'}" class="badge bg-warning">Emprunté</span>
+                                                <span th:if="${ex.statut == 'perdu'}" class="badge bg-danger">Perdu</span>
+                                                <span th:if="${ex.statut == 'en_reparation'}" class="badge bg-info">En réparation</span>
+                                                <span th:if="${ex.statut == null || ex.statut == ''}" class="badge bg-secondary">Non défini</span>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(exemplaires)}">
+                                            <td colspan="4" class="text-center text-muted">Aucun exemplaire pour ce livre.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <!-- Bloc avis et notation -->
                         <div class="row mt-4">
                             <div class="col-12">
@@ -169,6 +203,13 @@
                                 Retour à la liste
                             </a>
                             <div>
+                                <form th:action="@{/user/reservations/demander}" method="post" style="display:inline;">
+                                    <input type="hidden" name="livreId" th:value="${livre.idLivre}" />
+                                    <button type="submit" class="btn btn-success me-2">
+                                        <i class="fas fa-calendar-plus me-2"></i>
+                                        Demander une réservation
+                                    </button>
+                                </form>
                                 <a th:href="@{/livres/{id}/modifier(id=${livre.idLivre})}" class="btn btn-primary me-2">
                                     <i class="fas fa-edit me-2"></i>
                                     Modifier

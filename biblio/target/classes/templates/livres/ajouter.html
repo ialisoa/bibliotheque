@@ -73,6 +73,25 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4 mb-3">
+                                    <label for="genre" class="form-label">Genre</label>
+                                    <select class="form-select" id="genre" th:field="*{genre}">
+                                        <option value="">Sélectionner un genre</option>
+                                        <option value="Roman">Roman</option>
+                                        <option value="Policier">Policier</option>
+                                        <option value="Science-fiction">Science-fiction</option>
+                                        <option value="Biographie">Biographie</option>
+                                        <option value="Essai">Essai</option>
+                                        <option value="Poésie">Poésie</option>
+                                        <option value="Théâtre">Théâtre</option>
+                                        <option value="Fantastique">Fantastique</option>
+                                        <option value="Aventure">Aventure</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
                                     <label for="nombrePages" class="form-label">Nombre de pages</label>
                                     <input type="number" class="form-control" id="nombrePages" th:field="*{nombrePages}" min="1">
                                 </div>
