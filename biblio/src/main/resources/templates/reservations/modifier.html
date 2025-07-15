@@ -57,15 +57,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="etat" class="form-label">État</label>
-                                        <select class="form-select" id="etat" th:field="*{etat}">
-                                            <option value="">Sélectionner...</option>
-                                            <option value="en_attente">En attente</option>
-                                            <option value="disponible">Disponible</option>
-                                            <option value="annulee">Annulée</option>
-                                            <option value="expiree">Expirée</option>
-                                        </select>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('etat')}" th:errors="*{etat}"></div>
+                                        <label for="dateFinReservation" class="form-label">Date de fin de réservation *</label>
+                                        <input type="date" class="form-control" id="dateFinReservation" th:field="*{dateFinReservation}" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dateFinReservation')}" th:errors="*{dateFinReservation}"></div>
                                     </div>
                                 </div>
                             </div>

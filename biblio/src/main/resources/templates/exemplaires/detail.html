@@ -104,6 +104,13 @@
                                 Retour à la liste
                             </a>
                             <div>
+                                <form th:if="${exemplaire.statut == 'disponible'}" th:action="@{/user/prets/demander}" method="post" style="display:inline;">
+                                    <input type="hidden" name="exemplaireId" th:value="${exemplaire.idExemplaire}" />
+                                    <button type="submit" class="btn btn-success me-2">
+                                        <i class="fas fa-hand-paper me-2"></i>
+                                        Demander un prêt
+                                    </button>
+                                </form>
                                 <a th:href="@{/exemplaires/{id}/modifier(id=${exemplaire.idExemplaire})}" class="btn btn-primary me-2">
                                     <i class="fas fa-edit me-2"></i>
                                     Modifier

@@ -132,6 +132,17 @@
                                                    title="Modifier">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
+                                                <!-- Boutons de validation/refus pour les réservations en attente -->
+                                                <form th:if="${reservation.etat == 'en_attente'}" th:action="@{/reservations/{id}/valider(id=${reservation.idReservation})}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Valider">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                </form>
+                                                <form th:if="${reservation.etat == 'en_attente'}" th:action="@{/reservations/{id}/refuser(id=${reservation.idReservation})}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Refuser">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </form>
                                                 <button type="button" 
                                                         class="btn btn-sm btn-outline-danger" 
                                                         title="Supprimer"

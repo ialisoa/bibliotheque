@@ -98,6 +98,7 @@
                                         <th>Titre</th>
                                         <th>Auteur</th>
                                         <th>Catégorie</th>
+                                        <th>Genre</th>
                                         <th>ISBN</th>
                                         <th>Statut</th>
                                         <th>Actions</th>
@@ -114,6 +115,9 @@
                                         <td th:text="${livre.auteur}">Auteur</td>
                                         <td>
                                             <span class="badge bg-info" th:text="${livre.categorie}">Catégorie</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="${livre.genre}">Genre</span>
                                         </td>
                                         <td th:text="${livre.isbn}">ISBN</td>
                                         <td>

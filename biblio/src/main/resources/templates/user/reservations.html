@@ -11,9 +11,49 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="fas fa-calendar me-2"></i>Mes Réservations</h2>
-            <a href="/user/dashboard" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Dashboard
-            </a>
+            <div>
+                <a href="/user/dashboard" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Dashboard
+                </a>
+                <!-- Bouton pour ouvrir la modal de demande de réservation -->
+                <button type="button" class="btn btn-info btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#demandeReservationModal">
+                    <i class="fas fa-plus"></i> Demander une réservation
+                </button>
+            </div>
+        </div>
+        <!-- Modal de demande de réservation -->
+        <div class="modal fade" id="demandeReservationModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{/user/reservations/demander}" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Demander une réservation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="livreId" class="form-label">Livre</label>
+                                <select class="form-select" id="livreId" name="livreId" required>
+                                    <option value="">Sélectionner...</option>
+                                    <option th:each="livre : ${livresDisponibles}" th:value="${livre.idLivre}" th:text="${livre.titre}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="dateReservation" class="form-label">Date de début de réservation</label>
+                                <input type="date" class="form-control" id="dateReservation" name="dateReservation" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="dateFinReservation" class="form-label">Date de fin de réservation</label>
+                                <input type="date" class="form-control" id="dateFinReservation" name="dateFinReservation" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-info">Envoyer la demande</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
         <div class="card border-0 shadow-sm">
             <div class="card-body">

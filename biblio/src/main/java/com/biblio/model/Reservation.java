@@ -18,6 +18,7 @@ public class Reservation {
     private Livre livre;
 
     private LocalDate dateReservation;
+    private LocalDate dateFinReservation;
     private String etat;
 
     // Getters et setters
@@ -29,6 +30,8 @@ public class Reservation {
     public void setLivre(Livre livre) { this.livre = livre; }
     public LocalDate getDateReservation() { return dateReservation; }
     public void setDateReservation(LocalDate dateReservation) { this.dateReservation = dateReservation; }
+    public LocalDate getDateFinReservation() { return dateFinReservation; }
+    public void setDateFinReservation(LocalDate dateFinReservation) { this.dateFinReservation = dateFinReservation; }
     public String getEtat() { return etat; }
     public void setEtat(String etat) { this.etat = etat; }
 } 

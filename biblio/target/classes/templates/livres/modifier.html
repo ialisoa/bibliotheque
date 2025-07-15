@@ -19,7 +19,7 @@
                         </h4>
                     </div>
                     <div class="card-body">
-                        <form th:action="@{/livres/{id}/modifier(id=${livre.idLivre})}" th:object="${livre}" method="post">
+                        <form th:action="@{/livres/{id}/modifier(id=${livre.idLivre})}" th:object="${livre}" method="post" id="formModifierLivre">
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="mb-3">
@@ -94,6 +94,25 @@
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('categorie')}" th:errors="*{categorie}"></div>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="genre" class="form-label">Genre</label>
+                                        <select class="form-select" id="genre" th:field="*{genre}">
+                                            <option value="">Sélectionner...</option>
+                                            <option value="Roman">Roman</option>
+                                            <option value="Policier">Policier</option>
+                                            <option value="Science-fiction">Science-fiction</option>
+                                            <option value="Biographie">Biographie</option>
+                                            <option value="Essai">Essai</option>
+                                            <option value="Poésie">Poésie</option>
+                                            <option value="Théâtre">Théâtre</option>
+                                            <option value="Fantastique">Fantastique</option>
+                                            <option value="Aventure">Aventure</option>
+                                            <option value="Jeunesse">Jeunesse</option>
+                                            <option value="Autre">Autre</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row">
@@ -152,11 +171,12 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
+                            <!-- Champ description supprimé car non présent dans l'entité Livre -->
+                            <!-- <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
-                            </div>
+                            </div> -->
 
                             <div class="mb-3">
                                 <label for="resume" class="form-label">Résumé</label>
@@ -170,17 +190,70 @@
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('cv')}" th:errors="*{cv}"></div>
                             </div>
 
-                            <div class="d-flex justify-content-between">
+                            <!-- Champs pour ajouter un exemplaire (optionnel) -->
+                            <hr/>
+                            <div class="mt-4">
+                                <h5>Ajouter un exemplaire (optionnel)</h5>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label for="nomExemplaire" class="form-label">Nom de l'exemplaire</label>
+                                        <input type="text" class="form-control" id="nomExemplaire" name="nomExemplaire">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="etatExemplaire" class="form-label">État</label>
+                                        <select class="form-select" id="etatExemplaire" name="etatExemplaire">
+                                            <option value="">Sélectionner...</option>
+                                            <option value="neuf">Neuf</option>
+                                            <option value="bon">Bon</option>
+                                            <option value="moyen">Moyen</option>
+                                            <option value="mauvais">Mauvais</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="statutExemplaire" class="form-label">Statut</label>
+                                        <select class="form-select" id="statutExemplaire" name="statutExemplaire">
+                                            <option value="">Sélectionner...</option>
+                                            <option value="disponible">Disponible</option>
+                                            <option value="emprunte">Emprunté</option>
+                                            <option value="en_reparation">En réparation</option>
+                                            <option value="perdu">Perdu</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fin champs exemplaire -->
+
+                            <div class="d-flex justify-content-between align-items-center mt-4">
                                 <a href="/livres" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>
                                     Retour à la liste
                                 </a>
-                                <button type="submit" class="btn btn-primary">
+                                <!-- Bouton qui ouvre la modal de confirmation -->
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
                                     <i class="fas fa-save me-2"></i>
                                     Enregistrer les modifications
                                 </button>
                             </div>
                         </form>
+                        <!-- Modal de confirmation -->
+                        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="confirmModalLabel">Confirmer la modification</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                              </div>
+                              <div class="modal-body">
+                                Êtes-vous sûr de vouloir enregistrer les modifications de ce livre ?
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                <!-- Bouton Confirmer dans la modal -->
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('formModifierLivre').submit();">Confirmer</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                     </div>
                 </div>
             </div>
