@@ -15,6 +15,8 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 import java.util.Map;
+import com.biblio.repository.PretRepository;
+import com.biblio.repository.ReservationRepository;
 
 @Controller
 @RequestMapping("/adherents")
@@ -25,6 +27,12 @@ public class AdherentController {
 
     @Autowired
     private PenaliteRepository penaliteRepository;
+
+    @Autowired
+    private PretRepository pretRepository;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     // Liste des adhérents
     @GetMapping
@@ -96,10 +104,33 @@ public class AdherentController {
     // Détails d'un adhérent
     @GetMapping("/{id}")
     public String detailsAdherent(@PathVariable Long id, Model model) {
-        Optional<Adherent> adherent = adherentRepository.findById(id);
-        
-        if (adherent.isPresent()) {
-            model.addAttribute("adherent", adherent.get());
+        Optional<Adherent> adherentOpt = adherentRepository.findById(id);
+        if (adherentOpt.isPresent()) {
+            Adherent adherent = adherentOpt.get();
+
+            // Utilisation des quotas personnalisés
+            Integer quotaLivres = adherent.getQuotaLivres();
+            Integer quotaJours = adherent.getQuotaJours();
+            Integer quotaReservations = adherent.getQuotaReservations();
+            Integer quotaProlongements = adherent.getQuotaProlongements();
+
+            model.addAttribute("quotaLivres", quotaLivres);
+            model.addAttribute("quotaJours", quotaJours);
+            model.addAttribute("quotaReservations", quotaReservations);
+            model.addAttribute("quotaProlongements", quotaProlongements);
+
+            // Livres empruntés en cours
+            int livresEmpruntes = pretRepository.findByAdherentAndDateRenduReelleIsNull(adherent).size();
+            model.addAttribute("livresEmpruntes", livresEmpruntes);
+
+            // Réservations en cours
+            int reservations = reservationRepository.findByAdherentAndEtatNot(adherent, "annulee").size();
+            model.addAttribute("reservations", reservations);
+
+            // Prolongements utilisés
+            model.addAttribute("prolongementsUtilises", adherent.getDemandesProlongementUtilisees() != null ? adherent.getDemandesProlongementUtilisees() : 0);
+
+            model.addAttribute("adherent", adherent);
             return "adherents/detail";
         } else {
             return "redirect:/adherents?error=notfound";

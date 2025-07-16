@@ -85,6 +85,23 @@
                                         <th>Profession :</th>
                                         <td th:text="${adherent.profession != null ? adherent.profession : 'Non renseigné'}">Profession</td>
                                     </tr>
+                                    <!-- Ajout quotas et statistiques -->
+                                    <tr>
+                                        <th>Livres empruntés :</th>
+                                        <td th:text="${livresEmpruntes} + ' / ' + ${quotaLivres}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Jours de prêt :</th>
+                                        <td th:text="${quotaJours}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Réservations :</th>
+                                        <td th:text="${reservations} + ' / ' + ${quotaReservations}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Prolongements :</th>
+                                        <td th:text="${prolongementsUtilises} + ' / ' + ${quotaProlongements}"></td>
+                                    </tr>
                                 </table>
                             </div>
                         </div>
