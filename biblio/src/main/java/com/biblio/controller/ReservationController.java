@@ -15,6 +15,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import com.biblio.model.Exemplaire;
+import com.biblio.model.Pret;
+import com.biblio.model.Statut;
+import com.biblio.repository.ExemplaireRepository;
+import com.biblio.repository.PretRepository;
+import com.biblio.repository.StatutRepository;
 
 @Controller
 @RequestMapping("/reservations")
@@ -28,6 +34,15 @@ public class ReservationController {
 
     @Autowired
     private LivreRepository livreRepository;
+
+    @Autowired
+    private ExemplaireRepository exemplaireRepository;
+
+    @Autowired
+    private StatutRepository statutRepository;
+
+    @Autowired
+    private PretRepository pretRepository;
 
     // Liste des réservations
     @GetMapping
@@ -165,7 +180,30 @@ public class ReservationController {
     public String validerReservation(@PathVariable Long id) {
         Reservation reservation = reservationRepository.findById(id).orElse(null);
         if (reservation != null && "en_attente".equals(reservation.getEtat())) {
-            reservation.setEtat("disponible");
+            // Chercher un exemplaire disponible du livre réservé
+            List<Exemplaire> exemplairesDispo = exemplaireRepository.findByLivreIdLivre(reservation.getLivre().getIdLivre())
+                .stream().filter(ex -> "disponible".equalsIgnoreCase(ex.getStatut())).toList();
+            if (!exemplairesDispo.isEmpty()) {
+                Exemplaire exemplaire = exemplairesDispo.get(0);
+                // Créer le prêt
+                Pret pret = new Pret();
+                pret.setAdherent(reservation.getAdherent());
+                pret.setExemplaire(exemplaire);
+                pret.setDatePret(reservation.getDateReservation());
+                pret.setDateRenduPrevue(reservation.getDateFinReservation());
+                pret.setType("domicile");
+                Statut statutPret = statutRepository.findByNom("en_cours");
+                pret.setStatut(statutPret);
+                pretRepository.save(pret);
+                // Mettre à jour l'exemplaire comme emprunté
+                exemplaire.setStatut("emprunte");
+                exemplaireRepository.save(exemplaire);
+                // Mettre à jour la réservation
+                reservation.setEtat("valide");
+            } else {
+                // Pas d'exemplaire disponible, la réservation reste en attente ou passe à 'impossible'
+                reservation.setEtat("impossible");
+            }
             reservationRepository.save(reservation);
         }
         return "redirect:/reservations";

@@ -2,6 +2,7 @@ package com.biblio.controller;
 
 import com.biblio.model.Adherent;
 import com.biblio.repository.AdherentRepository;
+import com.biblio.repository.PenaliteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +12,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.ResponseEntity;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/adherents")
@@ -18,6 +22,9 @@ public class AdherentController {
 
     @Autowired
     private AdherentRepository adherentRepository;
+
+    @Autowired
+    private PenaliteRepository penaliteRepository;
 
     // Liste des adhérents
     @GetMapping
@@ -141,5 +148,27 @@ public class AdherentController {
         } catch (Exception e) {
             return "redirect:/adherents?error=delete";
         }
+    }
+
+    // Endpoint API JSON pour les détails d'un adhérent
+    @GetMapping("/api/{id}")
+    @ResponseBody
+    public ResponseEntity<?> getAdherentDetailsJson(@PathVariable Long id) {
+        return adherentRepository.findById(id)
+            .map(adherent -> {
+                Map<String, Object> result = new HashMap<>();
+                result.put("id", adherent.getIdAdherent());
+                result.put("nom", adherent.getNom());
+                result.put("prenom", adherent.getPrenom());
+                result.put("email", adherent.getEmail());
+                result.put("statut", adherent.getStatut());
+                result.put("quota_prolongement", adherent.getQuotaProlongement());
+                result.put("demandes_prolongement_utilisees", adherent.getDemandesProlongementUtilisees());
+                result.put("date_expiration", adherent.getDateExpiration());
+                // Pénalités de l'adhérent
+                result.put("penalites", penaliteRepository.findByAdherentIdAdherent(adherent.getIdAdherent()));
+                return ResponseEntity.ok(result);
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
 } 

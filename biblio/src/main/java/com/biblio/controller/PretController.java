@@ -15,6 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.WebDataBinder;
+import java.beans.PropertyEditorSupport;
 
 import java.util.List;
 
@@ -37,6 +39,20 @@ public class PretController {
 
     @Autowired
     private LivreRepository livreRepository;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(Exemplaire.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.isEmpty()) {
+                    setValue(null);
+                } else {
+                    setValue(exemplaireRepository.findById(Long.valueOf(text)).orElse(null));
+                }
+            }
+        });
+    }
 
     @GetMapping
     public String listePrets(Model model, 
@@ -305,15 +321,22 @@ public class PretController {
     }
 
     @PostMapping("/{id}/prolonger")
-    public String prolongerPret(@PathVariable Long id) {
+    public String prolongerPret(@PathVariable Long id, @RequestParam("nouvelleDateRendu") String nouvelleDateRenduStr) {
         logger.info("Tentative de prolongation du prêt ID: {}", id);
         try {
             Pret pret = pretRepository.findById(id).orElseThrow();
-            // Ajouter 14 jours à la date de retour prévue
-            pret.setDateRenduPrevue(pret.getDateRenduPrevue().plusDays(14));
-            pretRepository.save(pret);
-            
-            logger.info("Prêt prolongé avec succès ID: {}", id);
+            java.time.LocalDate dateFinPretBase = pret.getDateRenduPrevue();
+            java.time.LocalDate nouvelleDateRendu = java.time.LocalDate.parse(nouvelleDateRenduStr);
+            // Créer un nouveau prêt pour le prolongement
+            Pret prolongement = new Pret();
+            prolongement.setAdherent(pret.getAdherent());
+            prolongement.setExemplaire(pret.getExemplaire());
+            prolongement.setType("prolongation");
+            prolongement.setStatut(pret.getStatut());
+            prolongement.setDatePret(dateFinPretBase);
+            prolongement.setDateRenduPrevue(nouvelleDateRendu);
+            pretRepository.save(prolongement);
+            logger.info("Prolongement créé pour le prêt ID: {} (nouvelle date: {})", id, nouvelleDateRendu);
             return "redirect:/prets?success=extended";
         } catch (Exception e) {
             logger.error("Erreur lors de la prolongation du prêt: {}", e.getMessage(), e);

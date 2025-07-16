@@ -44,8 +44,7 @@
                                         <option value="">Sélectionner un exemplaire</option>
                                         <option th:each="ex : ${exemplaires}" 
                                                 th:value="${ex.idExemplaire}" 
-                                                th:text="${ex.nomExemplaire + ' - ' + ex.livre.titre + ' (' + ex.etat + ')'}"
-                                                th:disabled="${ex.etat != 'disponible'}">
+                                                th:text="${ex.nomExemplaire + ' - ' + ex.livre.titre + ' (' + ex.etat + ')'}">
                                             Nom exemplaire - Titre livre (état)
                                         </option>
                                     </select>

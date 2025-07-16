@@ -178,14 +178,32 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <form th:if="${pret.dateRenduReelle == null}" 
-                                                      th:action="@{/prets/{id}/prolonger(id=${pret.idPret})}" 
-                                                      method="post" 
-                                                      style="display: inline;">
-                                                    <button type="submit" class="btn btn-sm btn-outline-info" title="Prolonger">
+                                                <form th:if="${pret.dateRenduReelle == null}" style="display: inline;">
+                                                    <button type="button" class="btn btn-sm btn-outline-info" title="Prolonger" data-bs-toggle="modal" th:data-bs-target="${'#prolongerModal' + pret.idPret}">
                                                         <i class="bi bi-calendar-plus"></i>
                                                     </button>
                                                 </form>
+                                                <!-- Modal de prolongement -->
+                                                <div class="modal fade" th:id="${'prolongerModal' + pret.idPret}" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <form th:action="@{/prets/{id}/prolonger(id=${pret.idPret})}" method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Prolonger le prêt</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <label for="nouvelleDateRendu" class="form-label">Nouvelle date de retour</label>
+                                                                    <input type="date" class="form-control" name="nouvelleDateRendu" required>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                    <button type="submit" class="btn btn-success">Valider le prolongement</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <!-- Boutons de validation/refus pour les prêts en attente -->
                                                 <form th:if="${pret.statut != null and pret.statut.nom == 'en_attente'}" th:action="@{/prets/{id}/valider(id=${pret.idPret})}" method="post" style="display:inline;">
                                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Valider">

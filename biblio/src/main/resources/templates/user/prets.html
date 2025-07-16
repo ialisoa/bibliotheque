@@ -56,6 +56,30 @@
             </div>
         </div>
         
+        <!-- Modal de demande de prolongement -->
+        <div class="modal fade" id="prolongementModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="prolongementForm" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Demander un prolongement</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="nouvelleDateRendu" class="form-label">Nouvelle date de retour souhaitée</label>
+                                <input type="date" class="form-control" id="nouvelleDateRendu" name="nouvelleDateRendu" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-success">Envoyer la demande</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
         <!-- Informations sur le quota de prolongement -->
         <div class="card mb-4">
             <div class="card-header bg-info text-white">
@@ -84,6 +108,13 @@
             </div>
         </div>
         
+        <!-- Vérification de l'abonnement -->
+        <div th:if="${adherent.statut != 'actif' or (abonnementExpire != null and abonnementExpire)}">
+            <div class="alert alert-warning mt-3">
+                Votre abonnement n'est pas actif ou a expiré. Vous ne pouvez pas effectuer d'actions (réserver, emprunter, prolonger).
+            </div>
+        </div>
+
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <!-- Messages de succès/erreur -->
@@ -135,7 +166,8 @@
                             <tr th:each="pret : ${prets}">
                                 <td>
                                     <i class="fas fa-book-open text-primary me-1"></i>
-                                    <span th:text="${pret.exemplaire.livre.titre}">Titre</span>
+                                    <span th:if="${pret.exemplaire != null and pret.exemplaire.livre != null}" th:text="${pret.exemplaire.livre.titre}">Titre</span>
+                                    <span th:if="${pret.exemplaire == null or pret.exemplaire.livre == null}" class="text-danger">Donnée manquante</span>
                                 </td>
                                 <td th:text="${#temporals.format(pret.datePret, 'dd/MM/yyyy')}">01/01/2025</td>
                                 <td th:text="${#temporals.format(pret.dateRenduPrevue, 'dd/MM/yyyy')}">01/01/2025</td>
@@ -149,13 +181,19 @@
                                     <span th:if="${pret.dateRenduReelle != null}" class="badge bg-secondary">Terminé</span>
                                 </td>
                                 <td>
-                                    <form th:if="${pret.dateRenduReelle == null and pret.type != 'prolongation'}" th:action="@{/user/prets/{id}/demander-prolongation(id=${pret.idPret})}" method="post" style="display:inline;">
-                                        <button type="submit" class="btn btn-sm btn-outline-info" title="Demander un prolongement">
-                                            <i class="fas fa-calendar-plus"></i> Prolonger
-                                        </button>
-                                    </form>
+                                    <button th:if="${pret.dateRenduReelle == null}" type="button" class="btn btn-sm btn-outline-info" title="Demander un prolongement" data-bs-toggle="modal" th:attr="data-pret-id=${pret.idPret}" onclick="ouvrirProlongementModal(this)">
+                                        <i class="fas fa-calendar-plus"></i> Prolonger
+                                    </button>
                                     <span th:if="${pret.type == 'prolongation'}" class="text-success">
                                         <i class="fas fa-check-circle"></i> Prolongé
+                                    </span>
+                                    <!-- Affichage du statut de la demande de prolongement -->
+                                    <span th:if="${prolongements[pret.idPret] != null}">
+                                        <span th:switch="${prolongements[pret.idPret].etat}">
+                                            <span th:case="'en_attente'" class="badge bg-warning text-dark ms-2">Prolongement en attente</span>
+                                            <span th:case="'valide'" class="badge bg-success ms-2">Prolongement validé</span>
+                                            <span th:case="'refuse'" class="badge bg-danger ms-2">Prolongement refusé</span>
+                                        </span>
                                     </span>
                                 </td>
                             </tr>
@@ -166,5 +204,15 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+function ouvrirProlongementModal(btn) {
+    var pretId = btn.getAttribute('data-pret-id');
+    var form = document.getElementById('prolongementForm');
+    form.action = '/user/prets/' + pretId + '/demander-prolongement';
+    document.getElementById('nouvelleDateRendu').value = '';
+    var modal = new bootstrap.Modal(document.getElementById('prolongementModal'));
+    modal.show();
+}
+</script>
 </body>
 </html> 
