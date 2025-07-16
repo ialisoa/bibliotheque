@@ -9,6 +9,8 @@ import com.biblio.repository.AdherentRepository;
 import com.biblio.repository.ExemplaireRepository;
 import com.biblio.repository.StatutRepository;
 import com.biblio.repository.LivreRepository;
+import com.biblio.repository.PenaliteRepository;
+import com.biblio.model.Penalite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +41,9 @@ public class PretController {
 
     @Autowired
     private LivreRepository livreRepository;
+
+    @Autowired
+    private PenaliteRepository penaliteRepository;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
@@ -311,6 +316,27 @@ public class PretController {
                 exemplaire.setStatut("disponible");
                 exemplaireRepository.save(exemplaire);
                 logger.info("État de l'exemplaire {} mis à jour à 'disponible'", exemplaire.getIdExemplaire());
+            }
+            // Création de la pénalité si retard
+            if (pret.getDateRenduPrevue() != null && dateRenduReelle.isAfter(pret.getDateRenduPrevue())) {
+                Adherent adherent = pret.getAdherent();
+                int nbJoursPenalite = 0;
+                String type = adherent.getType() != null ? adherent.getType().toLowerCase() : "";
+                switch (type) {
+                    case "etudiant": nbJoursPenalite = 10; break;
+                    case "enseignant": nbJoursPenalite = 9; break;
+                    case "anonyme": nbJoursPenalite = 8; break;
+                    default: nbJoursPenalite = 7; // valeur par défaut
+                }
+                Penalite penalite = new Penalite();
+                penalite.setPret(pret);
+                penalite.setAdherent(adherent);
+                penalite.setDateDebut(dateRenduReelle);
+                penalite.setDateFin(dateRenduReelle.plusDays(nbJoursPenalite));
+                penalite.setMotif("Retard de retour de livre");
+                penalite.setMontant(java.math.BigDecimal.ZERO); // ou autre logique
+                penaliteRepository.save(penalite);
+                logger.info("Pénalité créée pour l'adhérent {} ({} jours)", adherent.getNom(), nbJoursPenalite);
             }
             logger.info("Prêt retourné avec succès ID: {}", id);
             return "redirect:/prets?success=returned";

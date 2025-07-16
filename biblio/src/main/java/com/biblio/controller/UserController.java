@@ -293,6 +293,15 @@ public class UserController {
         String username = auth.getName();
         Adherent adherent = adherentRepository.findByLogin(username)
             .orElseThrow(() -> new RuntimeException("Adhérent non trouvé"));
+        // Vérification statut et pénalité
+        boolean actif = "actif".equalsIgnoreCase(adherent.getStatut());
+        boolean penaliteEnCours = penaliteRepository.findByAdherentAndDateFinIsNull(adherent).size() > 0
+            || penaliteRepository.findByAdherentOrderByDateDebutDesc(adherent)
+                .stream()
+                .anyMatch(p -> p.getDateFin() != null && !p.getDateFin().isBefore(java.time.LocalDate.now()));
+        if (!actif || penaliteEnCours) {
+            return "redirect:/user/prets?error=acces_refuse";
+        }
         try {
             Pret pret = new Pret();
             pret.setAdherent(adherent);
@@ -331,6 +340,15 @@ public class UserController {
         String username = auth.getName();
         Adherent adherent = adherentRepository.findByLogin(username)
             .orElseThrow(() -> new RuntimeException("Adhérent non trouvé"));
+        // Vérification statut et pénalité
+        boolean actif = "actif".equalsIgnoreCase(adherent.getStatut());
+        boolean penaliteEnCours = penaliteRepository.findByAdherentAndDateFinIsNull(adherent).size() > 0
+            || penaliteRepository.findByAdherentOrderByDateDebutDesc(adherent)
+                .stream()
+                .anyMatch(p -> p.getDateFin() != null && !p.getDateFin().isBefore(java.time.LocalDate.now()));
+        if (!actif || penaliteEnCours) {
+            return "redirect:/user/reservations?error=acces_refuse";
+        }
         try {
             Reservation reservation = new Reservation();
             reservation.setAdherent(adherent);

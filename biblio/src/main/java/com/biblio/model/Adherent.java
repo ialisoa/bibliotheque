@@ -44,6 +44,18 @@ public class Adherent {
     @Column(name = "demandes_prolongement_utilisees")
     private Integer demandesProlongementUtilisees = 0;
 
+    @Column(name = "quota_livres")
+    private Integer quotaLivres;
+
+    @Column(name = "quota_jours")
+    private Integer quotaJours;
+
+    @Column(name = "quota_reservations")
+    private Integer quotaReservations;
+
+    @Column(name = "quota_prolongements")
+    private Integer quotaProlongements;
+
     // Getters et setters
     public Long getIdAdherent() { return idAdherent; }
     public void setIdAdherent(Long idAdherent) { this.idAdherent = idAdherent; }
@@ -95,4 +107,13 @@ public class Adherent {
 
     public Integer getDemandesProlongementUtilisees() { return demandesProlongementUtilisees; }
     public void setDemandesProlongementUtilisees(Integer demandesProlongementUtilisees) { this.demandesProlongementUtilisees = demandesProlongementUtilisees; }
+
+    public Integer getQuotaLivres() { return quotaLivres; }
+    public void setQuotaLivres(Integer quotaLivres) { this.quotaLivres = quotaLivres; }
+    public Integer getQuotaJours() { return quotaJours; }
+    public void setQuotaJours(Integer quotaJours) { this.quotaJours = quotaJours; }
+    public Integer getQuotaReservations() { return quotaReservations; }
+    public void setQuotaReservations(Integer quotaReservations) { this.quotaReservations = quotaReservations; }
+    public Integer getQuotaProlongements() { return quotaProlongements; }
+    public void setQuotaProlongements(Integer quotaProlongements) { this.quotaProlongements = quotaProlongements; }
 } 
